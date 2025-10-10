@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { KATAKANA, pickRandom, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
+import { SELECTION_COUNT, FLASH_INTERVAL_MS, HINT_THRESHOLD } from '../config';
 
 export type TrainerState = {
   selection: Kana[];
@@ -21,7 +22,7 @@ export function useTrainer(): TrainerState {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
-  const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, 10), [seed]);
+  const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, SELECTION_COUNT), [seed]);
   const current = selection[currentIndex];
 
   useEffect(() => {
@@ -45,9 +46,9 @@ export function useTrainer(): TrainerState {
 
   function flashErrorTwice() {
     setFlash(true);
-    setTimeout(() => setFlash(false), 130);
-    setTimeout(() => setFlash(true), 260);
-    setTimeout(() => setFlash(false), 390);
+    setTimeout(() => setFlash(false), FLASH_INTERVAL_MS);
+    setTimeout(() => setFlash(true), FLASH_INTERVAL_MS * 2);
+    setTimeout(() => setFlash(false), FLASH_INTERVAL_MS * 3);
   }
 
   function onInputChange(e: ChangeEvent<HTMLInputElement>) {
@@ -63,7 +64,7 @@ export function useTrainer(): TrainerState {
         setInput('');
         setAttempts((prev) => {
           const next = prev + 1;
-          if (next >= 2) setShowHint(true);
+          if (next >= HINT_THRESHOLD) setShowHint(true);
           return next;
         });
         flashErrorTwice();
@@ -86,4 +87,3 @@ export function useTrainer(): TrainerState {
     reshuffle,
   };
 }
-
