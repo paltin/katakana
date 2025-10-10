@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { KATAKANA, pickRandom } from './data/katakana';
 import type { Kana } from './data/katakana';
+import { requiredLength } from './utils/romaji';
+import { KanaGrid } from './components/KanaGrid';
+import { Hint } from './components/Hint';
+import { AnswerInput } from './components/AnswerInput';
 import './style.css';
 
 export default function App() {
@@ -25,11 +29,6 @@ export default function App() {
   }, [seed]);
 
   const current = selection[currentIndex];
-
-  function requiredLength(romaji: string) {
-    const v = ["a", "i", "u", "e", "o"];
-    return v.includes(romaji.toLowerCase()) ? 1 : 2;
-  }
 
   function advance() {
     if (currentIndex < selection.length - 1) {
@@ -75,34 +74,9 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-4xl mx-auto p-6 pt-[5.5rem] text-center">
-        <div className="-mt-4 mb-2 h-[3rem] leading-none text-neutral-300 [font-family:Tahoma]">
-          <span className={(showHint && current ? 'visible' : 'invisible') + ' text-[2rem]'}>
-            {current ? current.romaji : ''}
-          </span>
-        </div>
-        <div className="grid grid-cols-[repeat(2,max-content)] md:grid-cols-[repeat(5,max-content)] gap-x-2 gap-y-3 justify-center items-center">
-          {selection.map((item, idx) => {
-            const isCurrent = idx === currentIndex;
-            const base = "w-[3.575rem] md:w-[4.29rem] aspect-square grid place-items-center rounded-xl text-6xl transition";
-            const visual = isCurrent
-              ? `${base} border ${flash ? 'ring-2 ring-neutral-300' : ''} border-neutral-600 bg-neutral-900 hover:-translate-y-0.5 hover:bg-neutral-800`
-              : `${base} border border-transparent bg-transparent`;
-            return (
-              <div key={item.kana} className={visual} title={item.romaji}>
-                {item.kana}
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-4 flex justify-center">
-          <input
-            type="text"
-            aria-label="Answer"
-            className="w-[10.5rem] md:w-48 rounded-md border border-neutral-800 bg-neutral-900 px-3 py-3 text-[1.6rem] leading-tight text-neutral-400 [font-family:Tahoma] focus:outline-none focus:ring-2 focus:ring-neutral-700"
-            value={input}
-            onChange={onChange}
-          />
-        </div>
+        <Hint show={!!(showHint && current)} text={current ? current.romaji : ''} />
+        <KanaGrid items={selection} currentIndex={currentIndex} flash={flash} />
+        <AnswerInput value={input} onChange={onChange} />
         <button
           aria-label="Shuffle"
           className="fixed bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
