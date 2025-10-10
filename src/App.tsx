@@ -8,6 +8,8 @@ export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState("");
   const [flash, setFlash] = useState(false);
+  const [, setAttempts] = useState(0);
+  const [showHint, setShowHint] = useState(false);
 
   const selection: Kana[] = useMemo(() => {
     return pickRandom(KATAKANA, 10);
@@ -18,6 +20,8 @@ export default function App() {
     setCurrentIndex(0);
     setInput("");
     setFlash(false);
+    setAttempts(0);
+    setShowHint(false);
   }, [seed]);
 
   const current = selection[currentIndex];
@@ -35,6 +39,8 @@ export default function App() {
       setSeed(Math.random());
     }
     setInput("");
+    setAttempts(0);
+    setShowHint(false);
   }
 
   function flashErrorTwice() {
@@ -56,6 +62,11 @@ export default function App() {
         advance();
       } else {
         setInput("");
+        setAttempts((prev) => {
+          const next = prev + 1;
+          if (next >= 2) setShowHint(true);
+          return next;
+        });
         flashErrorTwice();
       }
     }
@@ -64,6 +75,11 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-4xl mx-auto p-6 pt-[5.5rem] text-center">
+        <div className="-mt-4 mb-2 h-[3rem] leading-none text-neutral-300 [font-family:Tahoma]">
+          <span className={(showHint && current ? 'visible' : 'invisible') + ' text-[2rem]'}>
+            {current ? current.romaji : ''}
+          </span>
+        </div>
         <div className="grid grid-cols-[repeat(2,max-content)] md:grid-cols-[repeat(5,max-content)] gap-x-2 gap-y-3 justify-center items-center">
           {selection.map((item, idx) => {
             const isCurrent = idx === currentIndex;
@@ -88,10 +104,12 @@ export default function App() {
           />
         </div>
         <button
-          className="mt-5 inline-flex items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium transition hover:bg-neutral-800"
+          aria-label="Shuffle"
+          className="fixed bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
           onClick={() => setSeed(Math.random())}
+          title="Shuffle"
         >
-          Shuffle
+          <span aria-hidden>🔀</span>
         </button>
       </div>
     </div>
