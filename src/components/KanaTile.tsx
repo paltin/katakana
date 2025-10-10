@@ -1,0 +1,22 @@
+// React in scope not required with react-jsx runtime
+
+type Props = {
+  kana: string;
+  romaji: string;
+  isCurrent: boolean;
+  flash: boolean;
+};
+
+export function KanaTile({ kana, romaji, isCurrent, flash }: Props) {
+  const base =
+    "w-[3.575rem] md:w-[4.29rem] aspect-square grid place-items-center rounded-xl text-6xl transition";
+  const visual = isCurrent
+    ? `${base} border ${flash ? 'ring-2 ring-neutral-300' : ''} border-neutral-600 bg-neutral-900 hover:-translate-y-0.5 hover:bg-neutral-800`
+    : `${base} border border-transparent bg-transparent`;
+
+  return (
+    <div className={visual} title={romaji}>
+      {kana}
+    </div>
+  );
+}
