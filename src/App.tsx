@@ -13,7 +13,7 @@ export default function App() {
   return (
     <div className="min-h-dvh grid place-items-center bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-4xl p-6 text-center">
-        <h1 className="mb-4 text-2xl font-semibold">Катакана: 10 случайных слогов</h1>
+        <h1 className="mb-4 text-2xl font-semibold">Katakana: 10 random syllables</h1>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 justify-items-center items-center">
           {selection.map((item) => (
             <div
@@ -29,7 +29,7 @@ export default function App() {
           className="mt-5 inline-flex items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium transition hover:bg-neutral-800"
           onClick={() => setSeed(Math.random())}
         >
-          Перемешать
+          Shuffle
         </button>
       </div>
     </div>
