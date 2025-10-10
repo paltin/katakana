@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../index.html";
+@source "./**/*.{ts,tsx,html}";
 
 /* Keep font for Japanese glyphs */
 body { 
