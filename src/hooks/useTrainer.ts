@@ -1,20 +1,34 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { KATAKANA, pickRandom, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
 import { SELECTION_COUNT, FLASH_INTERVAL_MS, HINT_THRESHOLD } from '../config';
 
-export type TrainerState = {
+/**
+ * Public API returned by useTrainer.
+ * Keeps internal details (attempt counters, timers) encapsulated
+ * and exposes intention-revealing actions.
+ */
+export type TrainerReturn = {
+  // State
   selection: Kana[];
   currentIndex: number;
+  total: number;
   current?: Kana;
   input: string;
   flash: boolean;
   showHint: boolean;
-  onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  // Derived
+  isLast: boolean;
+  progress: number; // 0..1
+  // Actions
+  handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  next: () => void;
+  reset: () => void;
+  revealHint: () => void;
   reshuffle: () => void;
 };
 
-export function useTrainer(): TrainerState {
+export function useTrainer(): TrainerReturn {
   const [seed, setSeed] = useState(() => Math.random());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -24,6 +38,9 @@ export function useTrainer(): TrainerState {
 
   const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, SELECTION_COUNT), [seed]);
   const current = selection[currentIndex];
+  const total = selection.length;
+  const isLast = currentIndex >= Math.max(0, total - 1);
+  const progress = total > 0 ? currentIndex / total : 0;
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -33,7 +50,7 @@ export function useTrainer(): TrainerState {
     setShowHint(false);
   }, [seed]);
 
-  function advance() {
+  const advance = useCallback(() => {
     if (currentIndex < selection.length - 1) {
       setCurrentIndex((x) => x + 1);
     } else {
@@ -42,16 +59,16 @@ export function useTrainer(): TrainerState {
     setInput('');
     setAttempts(0);
     setShowHint(false);
-  }
+  }, [currentIndex, selection.length]);
 
-  function flashErrorTwice() {
+  const flashErrorTwice = useCallback(() => {
     setFlash(true);
     setTimeout(() => setFlash(false), FLASH_INTERVAL_MS);
     setTimeout(() => setFlash(true), FLASH_INTERVAL_MS * 2);
     setTimeout(() => setFlash(false), FLASH_INTERVAL_MS * 3);
-  }
+  }, []);
 
-  function onInputChange(e: ChangeEvent<HTMLInputElement>) {
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInput(val);
     if (!current) return;
@@ -70,20 +87,32 @@ export function useTrainer(): TrainerState {
         flashErrorTwice();
       }
     }
-  }
+  }, [current, advance, flashErrorTwice]);
 
-  function reshuffle() {
-    setSeed(Math.random());
-  }
+  const next = useCallback(() => advance(), [advance]);
+  const reset = useCallback(() => {
+    setCurrentIndex(0);
+    setInput('');
+    setAttempts(0);
+    setShowHint(false);
+  }, []);
+  const revealHint = useCallback(() => setShowHint(true), []);
+  const reshuffle = useCallback(() => setSeed(Math.random()), []);
 
   return {
     selection,
     currentIndex,
+    total,
     current,
     input,
     flash,
     showHint,
-    onInputChange,
+    isLast,
+    progress,
+    handleInputChange,
+    next,
+    reset,
+    revealHint,
     reshuffle,
   };
 }
