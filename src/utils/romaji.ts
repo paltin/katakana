@@ -1,5 +1,4 @@
 export function requiredLength(romaji: string): number {
-  const vowels = ["a", "i", "u", "e", "o"];
-  return vowels.includes(romaji.toLowerCase()) ? 1 : 2;
+  // Single-letter romaji (vowels and 'n') should validate after 1 char
+  return romaji.trim().length === 1 ? 1 : 2;
 }
-
