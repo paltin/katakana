@@ -1,10 +1,22 @@
 import { KanaGrid } from './components/KanaGrid';
 import { Hint } from './components/Hint';
 import { AnswerInput } from './components/AnswerInput';
+import { SettingsPanel } from './components/SettingsPanel';
+import { SettingsProvider } from './context/SettingsContext';
 import { useTrainer } from './hooks/useTrainer';
 import './style.css';
 
+import { useState } from 'react';
+
 export default function App() {
+  return (
+    <SettingsProvider>
+      <InnerApp />
+    </SettingsProvider>
+  );
+}
+
+function InnerApp() {
   const {
     selection,
     currentIndex,
@@ -15,6 +27,7 @@ export default function App() {
     handleInputChange,
     reshuffle,
   } = useTrainer();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
@@ -30,6 +43,17 @@ export default function App() {
         >
           <span aria-hidden>🔀</span>
         </button>
+
+        <button
+          aria-label="Settings"
+          className="fixed bottom-4 right-20 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
+          onClick={() => setSettingsOpen(true)}
+          title="Settings"
+        >
+          <span aria-hidden>⚙️</span>
+        </button>
+
+        <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </div>
     </div>
   );
