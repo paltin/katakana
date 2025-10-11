@@ -34,7 +34,13 @@ function InnerApp() {
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-4xl mx-auto p-6 pt-[5.5rem] text-center">
         <Hint show={!!(showHint && current)} text={current ? current.romaji : ''} />
-        <KanaGrid items={selection} currentIndex={currentIndex} flash={flash} cols={settings.cols} />
+        <KanaGrid
+          items={selection}
+          currentIndex={currentIndex}
+          flash={flash}
+          cols={settings.cols}
+          fontRem={settings.charRem}
+        />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button
           aria-label="Shuffle"

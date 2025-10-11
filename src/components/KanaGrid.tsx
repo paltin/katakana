@@ -7,11 +7,13 @@ type Props = {
   currentIndex: number;
   flash: boolean;
   cols: number;
+  fontRem: number;
 };
 
-export function KanaGrid({ items, currentIndex, flash, cols }: Props) {
+export function KanaGrid({ items, currentIndex, flash, cols, fontRem }: Props) {
   const gapRem = 0.5; // matches gap-x-2
-  const width = `min(4.29rem, calc((100% - ${(cols - 1) * gapRem}rem) / ${cols}))`;
+  const desiredRem = Math.round(fontRem * 1.14 * 100) / 100; // keep proportion to font size
+  const width = `min(${desiredRem}rem, calc((100% - ${(cols - 1) * gapRem}rem) / ${cols}))`;
   return (
     <div
       className="grid gap-x-2 gap-y-3 justify-center items-center"
@@ -25,7 +27,8 @@ export function KanaGrid({ items, currentIndex, flash, cols }: Props) {
           isCurrent={idx === currentIndex}
           flash={idx === currentIndex ? flash : false}
           // width controlled via grid track size
-        />
+          fontRem={fontRem}
+          />
       ))}
     </div>
   );

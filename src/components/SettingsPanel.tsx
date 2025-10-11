@@ -10,9 +10,9 @@ export function SettingsPanel({ open, onClose }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16">
+    <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
+      <div className="relative w-full max-w-md rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Settings</h2>
           <button
@@ -46,6 +46,22 @@ export function SettingsPanel({ open, onClose }: Props) {
               value={settings.cols}
               onChange={(e) => update({ cols: Number(e.target.value) })}
               className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
+            />
+          </label>
+
+          <label className="grid grid-cols-1 gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-neutral-300">Character size</span>
+              <span className="text-xs text-neutral-400">{settings.charRem.toFixed(1)} rem</span>
+            </div>
+            <input
+              type="range"
+              min={2.5}
+              max={6}
+              step={0.1}
+              value={settings.charRem}
+              onChange={(e) => update({ charRem: Number(e.target.value) })}
+              className="w-full accent-neutral-400"
             />
           </label>
 

@@ -6,9 +6,10 @@ type Props = {
   isCurrent: boolean;
   flash: boolean;
   width?: string; // CSS width value (e.g., calc(...))
+  fontRem?: number;
 };
 
-export function KanaTile({ kana, romaji, isCurrent, flash, width }: Props) {
+export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem }: Props) {
   const base =
     "aspect-square grid place-items-center rounded-xl text-6xl transition [font-family:'Noto Serif JP']";
   const visual = isCurrent
@@ -16,7 +17,11 @@ export function KanaTile({ kana, romaji, isCurrent, flash, width }: Props) {
     : `${base} border border-transparent bg-transparent`;
 
   return (
-    <div className={visual} title={romaji} style={width ? { width } : undefined}>
+    <div
+      className={visual}
+      title={romaji}
+      style={{ ...(width ? { width } : {}), ...(fontRem ? { fontSize: `${fontRem}rem` } : {}) }}
+    >
       {kana}
     </div>
   );

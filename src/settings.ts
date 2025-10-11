@@ -1,6 +1,7 @@
 export type Settings = {
   rows: number; // number of rows
   cols: number; // characters per row
+  charRem: number; // character font size in rem
   hintThreshold: number; // wrong tries before showing hint
   flashIntervalMs: number; // visual flash step
 };
@@ -8,6 +9,7 @@ export type Settings = {
 export const DEFAULT_SETTINGS: Settings = {
   rows: 2,
   cols: 5,
+  charRem: 3.75, // close to Tailwind text-6xl default
   hintThreshold: 2,
   flashIntervalMs: 130,
 };
@@ -45,7 +47,8 @@ function sanitizeSettings(obj: any): Settings {
 
   const rows = clamp(Number(obj?.rows ?? derivedRows), 1, 5);
   const cols = clamp(Number(obj?.cols ?? derivedCols), 1, 10);
+  const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 2.5, 6);
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
   const flashIntervalMs = clamp(Number(obj?.flashIntervalMs ?? DEFAULT_SETTINGS.flashIntervalMs), 80, 300);
-  return { rows, cols, hintThreshold, flashIntervalMs };
+  return { rows, cols, charRem, hintThreshold, flashIntervalMs };
 }
