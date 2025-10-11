@@ -2,7 +2,7 @@ import { KanaGrid } from './components/KanaGrid';
 import { Hint } from './components/Hint';
 import { AnswerInput } from './components/AnswerInput';
 import { SettingsPanel } from './components/SettingsPanel';
-import { SettingsProvider } from './context/SettingsContext';
+import { SettingsProvider, useSettings } from './context/SettingsContext';
 import { useTrainer } from './hooks/useTrainer';
 import './style.css';
 
@@ -27,13 +27,14 @@ function InnerApp() {
     handleInputChange,
     reshuffle,
   } = useTrainer();
+  const { settings } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-4xl mx-auto p-6 pt-[5.5rem] text-center">
         <Hint show={!!(showHint && current)} text={current ? current.romaji : ''} />
-        <KanaGrid items={selection} currentIndex={currentIndex} flash={flash} />
+        <KanaGrid items={selection} currentIndex={currentIndex} flash={flash} cols={settings.cols} />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button
           aria-label="Shuffle"
