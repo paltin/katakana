@@ -37,7 +37,7 @@ export function useTrainer(): TrainerReturn {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
-  const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, settings.selectionCount), [seed, settings.selectionCount]);
+  const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, settings.rows * settings.cols), [seed, settings.rows, settings.cols]);
   const current = selection[currentIndex];
   const total = selection.length;
   const isLast = currentIndex >= Math.max(0, total - 1);

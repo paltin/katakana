@@ -26,13 +26,25 @@ export function SettingsPanel({ open, onClose }: Props) {
 
         <div className="space-y-4">
           <label className="grid grid-cols-[1fr_auto] items-center gap-3">
-            <span className="text-sm text-neutral-300">Syllables shown</span>
+            <span className="text-sm text-neutral-300">Rows</span>
             <input
               type="number"
-              min={4}
-              max={25}
-              value={settings.selectionCount}
-              onChange={(e) => update({ selectionCount: Number(e.target.value) })}
+              min={1}
+              max={5}
+              value={settings.rows}
+              onChange={(e) => update({ rows: Number(e.target.value) })}
+              className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
+            />
+          </label>
+
+          <label className="grid grid-cols-[1fr_auto] items-center gap-3">
+            <span className="text-sm text-neutral-300">Columns</span>
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={settings.cols}
+              onChange={(e) => update({ cols: Number(e.target.value) })}
               className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
             />
           </label>
@@ -81,4 +93,3 @@ export function SettingsPanel({ open, onClose }: Props) {
     </div>
   );
 }
-

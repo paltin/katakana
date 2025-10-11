@@ -1,11 +1,13 @@
 export type Settings = {
-  selectionCount: number; // how many kana to show
+  rows: number; // number of rows
+  cols: number; // characters per row
   hintThreshold: number; // wrong tries before showing hint
   flashIntervalMs: number; // visual flash step
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  selectionCount: 10,
+  rows: 2,
+  cols: 5,
   hintThreshold: 2,
   flashIntervalMs: 130,
 };
@@ -36,9 +38,14 @@ function clamp(n: number, min: number, max: number) {
 }
 
 function sanitizeSettings(obj: any): Settings {
-  const selectionCount = clamp(Number(obj?.selectionCount ?? DEFAULT_SETTINGS.selectionCount), 4, 25);
+  // Backward compatibility: if old selectionCount present, derive rows/cols
+  const legacyCount = obj?.selectionCount;
+  const derivedRows = legacyCount ? 2 : DEFAULT_SETTINGS.rows;
+  const derivedCols = legacyCount ? Math.ceil(Number(legacyCount) / derivedRows) : DEFAULT_SETTINGS.cols;
+
+  const rows = clamp(Number(obj?.rows ?? derivedRows), 1, 5);
+  const cols = clamp(Number(obj?.cols ?? derivedCols), 1, 10);
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
   const flashIntervalMs = clamp(Number(obj?.flashIntervalMs ?? DEFAULT_SETTINGS.flashIntervalMs), 80, 300);
-  return { selectionCount, hintThreshold, flashIntervalMs };
+  return { rows, cols, hintThreshold, flashIntervalMs };
 }
-
