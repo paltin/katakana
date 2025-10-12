@@ -32,7 +32,7 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-5xl rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Statistics (current layout)</h2>
+          <h2 className="text-[1.4rem] font-semibold">Statistics (current layout)</h2>
           <button
             onClick={onClose}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-800 hover:bg-neutral-700"
@@ -43,17 +43,17 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
         </div>
 
         <div className="max-h-[80vh] overflow-y-auto">
-          <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(180px,1fr))]">
+          <div className="grid gap-1.5 grid-cols-[repeat(auto-fill,minmax(110px,max-content))] auto-rows-max">
             {pool.map((k) => {
               const c = counts.get(k.romaji) ?? 0;
               const pct = Math.round((c / total) * 1000) / 10; // one decimal
               return (
-                <div key={k.romaji} className="flex items-center justify-between gap-2 rounded-md border border-neutral-800 bg-neutral-900/60 px-2 py-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl [font-family:'Noto Serif JP']" style={{ color: settings.kanaColor }}>{k.kana}</span>
-                    <span className="text-neutral-400 text-xs">{k.romaji}</span>
+                <div key={k.romaji} className="flex items-center gap-1.5 rounded-md border border-neutral-800 bg-neutral-900/60 px-1.5 py-0.5">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[1.4rem] [font-family:'Noto Serif JP']" style={{ color: settings.kanaColor }}>{k.kana}</span>
+                    <span className="text-neutral-500 text-xs">-</span>
                   </div>
-                  <div className="text-neutral-300 text-xs">{c} · {pct}%</div>
+                  <div className="text-neutral-300 text-[12px]"><span className="opacity-60">{c}</span> · {pct}%</div>
                 </div>
               );
             })}
@@ -63,3 +63,4 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
     </div>
   );
 }
+
