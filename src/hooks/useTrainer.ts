@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'rea
 import { KATAKANA, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
+import { useFilters } from '../context/FilterContext';
 import { FLASH_INTERVAL_MS } from '../config';
 import { pickRandomFill } from '../utils/random';
 
@@ -32,6 +33,7 @@ export type TrainerReturn = {
 
 export function useTrainer(): TrainerReturn {
   const { settings } = useSettings();
+  const { selected } = useFilters();
   const [seed, setSeed] = useState(() => Math.random());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -39,9 +41,13 @@ export function useTrainer(): TrainerReturn {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
+  const pool: Kana[] = useMemo(() => {
+    const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
+    return set;
+  }, [selected]);
   const selection: Kana[] = useMemo(
-    () => pickRandomFill(KATAKANA, settings.rows * settings.cols),
-    [seed, settings.rows, settings.cols]
+    () => pickRandomFill(pool, settings.rows * settings.cols),
+    [seed, settings.rows, settings.cols, pool]
   );
   const current = selection[currentIndex];
   const total = selection.length;
