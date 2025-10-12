@@ -47,8 +47,9 @@ function sanitizeSettings(obj: any): Settings {
 
   const rows = Math.max(1, Number(obj?.rows ?? derivedRows));
   const cols = Math.max(1, Number(obj?.cols ?? derivedCols));
-  const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 2.5, 6);
+  const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 1, 6);
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
   const study = Boolean(obj?.study ?? DEFAULT_SETTINGS.study);
   return { rows, cols, charRem, hintThreshold, study };
 }
+

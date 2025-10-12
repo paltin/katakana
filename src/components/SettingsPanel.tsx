@@ -54,7 +54,7 @@ export function SettingsPanel({ open, onClose }: Props) {
             </div>
             <input
               type="range"
-              min={2.5}
+              min={1}
               max={6}
               step={0.1}
               value={settings.charRem}
