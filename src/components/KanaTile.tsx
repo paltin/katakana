@@ -8,9 +8,10 @@ type Props = {
   width?: string; // CSS width value (e.g., calc(...))
   fontRem?: number;
   dim?: boolean; // render with reduced opacity (already solved)
+  color?: string; // glyph color
 };
 
-export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim }: Props) {
+export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim, color }: Props) {
   const base =
     "aspect-square grid place-items-center rounded-xl text-6xl transition [font-family:'Noto Serif JP']";
   const visual = isCurrent
@@ -21,7 +22,11 @@ export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim }
     <div
       className={visual}
       title={romaji}
-      style={{ ...(width ? { width } : {}), ...(fontRem ? { fontSize: `${fontRem}rem` } : {}) }}
+      style={{
+        ...(width ? { width } : {}),
+        ...(fontRem ? { fontSize: `${fontRem}rem` } : {}),
+        ...(color ? { color } : {}),
+      }}
     >
       {kana}
     </div>
