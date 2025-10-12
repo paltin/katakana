@@ -20,6 +20,7 @@ export type TrainerReturn = {
   input: string;
   flash: boolean;
   showHint: boolean;
+  problemCounts: Record<string, number>;
   // Derived
   isLast: boolean;
   progress: number; // 0..1
@@ -29,6 +30,7 @@ export type TrainerReturn = {
   reset: () => void;
   revealHint: () => void;
   reshuffle: () => void;
+  markHintUsed: () => void;
 };
 
 export function useTrainer(): TrainerReturn {
@@ -40,6 +42,7 @@ export function useTrainer(): TrainerReturn {
   const [flash, setFlash] = useState(false);
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
 
   const pool: Kana[] = useMemo(() => {
     const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
@@ -60,6 +63,7 @@ export function useTrainer(): TrainerReturn {
     setFlash(false);
     setAttempts(0);
     setShowHint(false);
+    setProblemCounts({});
   }, [seed]);
 
   const advance = useCallback(() => {
@@ -94,6 +98,10 @@ export function useTrainer(): TrainerReturn {
         setInput('');
         // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
         setAttempts((prev) => prev + 1);
+        setProblemCounts((prev) => ({
+          ...prev,
+          [current.romaji]: (prev[current.romaji] ?? 0) + 1,
+        }));
         flashErrorTwice();
       }
     }
@@ -108,6 +116,13 @@ export function useTrainer(): TrainerReturn {
   }, []);
   const revealHint = useCallback(() => setShowHint(true), []);
   const reshuffle = useCallback(() => setSeed(Math.random()), []);
+  const markHintUsed = useCallback(() => {
+    if (!current) return;
+    setProblemCounts((prev) => ({
+      ...prev,
+      [current.romaji]: (prev[current.romaji] ?? 0) + 1,
+    }));
+  }, [current]);
 
   return {
     selection,
@@ -117,6 +132,7 @@ export function useTrainer(): TrainerReturn {
     input,
     flash,
     showHint,
+    problemCounts,
     isLast,
     progress,
     handleInputChange,
@@ -124,5 +140,6 @@ export function useTrainer(): TrainerReturn {
     reset,
     revealHint,
     reshuffle,
+    markHintUsed,
   };
 }

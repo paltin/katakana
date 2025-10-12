@@ -26,6 +26,20 @@ export function SettingsPanel({ open, onClose }: Props) {
 
         <div className="space-y-4">
           <label className="grid grid-cols-[1fr_auto] items-center gap-3">
+            <span className="text-sm text-neutral-300">Character font</span>
+            <select
+              value={settings.kanaFont}
+              onChange={(e) => update({ kanaFont: e.target.value })}
+              className="w-36 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
+            >
+              <option value="Noto Serif JP">Noto Serif JP</option>
+              <option value="Noto Sans JP">Noto Sans JP</option>
+              <option value="Shippori Mincho">Shippori Mincho</option>
+              <option value="Kosugi Maru">Kosugi Maru</option>
+              <option value="Sawarabi Mincho">Sawarabi Mincho</option>
+            </select>
+          </label>
+          <label className="grid grid-cols-[1fr_auto] items-center gap-3">
             <span className="text-sm text-neutral-300">Character color</span>
             <input
               type="color"
