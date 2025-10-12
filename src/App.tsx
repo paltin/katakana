@@ -1,5 +1,5 @@
 import { KanaGrid } from './components/KanaGrid';
-import { Hint } from './components/Hint';
+import { HintRow } from './components/HintRow';
 import { AnswerInput } from './components/AnswerInput';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
@@ -33,7 +33,13 @@ function InnerApp() {
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-7xl mx-auto p-6 pt-[1.375rem] text-center">
-        <Hint show={!!((showHint || settings.study) && current)} text={current ? current.romaji : ''} />
+        <HintRow
+          cols={settings.cols}
+          fontRem={settings.charRem}
+          currentCol={currentIndex % settings.cols}
+          text={current ? current.romaji : ''}
+          show={!!((showHint || settings.study) && current)}
+        />
         <KanaGrid
           items={selection}
           currentIndex={currentIndex}
