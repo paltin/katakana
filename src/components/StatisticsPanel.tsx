@@ -49,11 +49,9 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
               const pct = Math.round((c / total) * 1000) / 10; // one decimal
               return (
                 <div key={k.romaji} className="flex items-center gap-1.5 rounded-md border border-neutral-800 bg-neutral-900/60 px-1.5 py-0.5">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[1.4rem] [font-family:'Noto Serif JP']" style={{ color: settings.kanaColor }}>{k.kana}</span>
-                    <span className="text-neutral-500 text-xs">-</span>
-                  </div>
-                  <div className="text-neutral-300 text-[12px]"><span className="opacity-60">{c}</span> Â· {pct}%</div>
+                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: settings.kanaColor, fontSize: '2rem' }}>{k.kana}</span>
+                  <span className="text-neutral-500 text-xs">-</span>
+                  <span className="text-neutral-300" style={{ fontSize: '16px' }}><span className="opacity-60">{c}</span> · {pct}%</span>
                 </div>
               );
             })}
@@ -63,4 +61,5 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
     </div>
   );
 }
+
 
