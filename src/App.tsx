@@ -86,6 +86,15 @@ function InnerApp() {
         </button>
 
         <button
+          aria-label="Statistics"
+          className="fixed bottom-4 right-52 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
+          onClick={() => {}}
+          title="Statistics"
+        >
+          <span aria-hidden>📊</span>
+        </button>
+
+        <button
           aria-label="Settings"
           className="fixed bottom-4 right-20 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
           onClick={() => setSettingsOpen(true)}
