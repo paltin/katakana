@@ -28,6 +28,7 @@ export function KanaGrid({ items, currentIndex, flash, cols, fontRem }: Props) {
           flash={idx === currentIndex ? flash : false}
           // width controlled via grid track size
           fontRem={fontRem}
+          dim={idx < currentIndex}
         />
       ))}
     </div>
