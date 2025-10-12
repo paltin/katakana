@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { KATAKANA, pickRandom, type Kana } from '../data/katakana';
+import { KATAKANA, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
-import { SELECTION_COUNT, FLASH_INTERVAL_MS, HINT_THRESHOLD } from '../config';
+import { useSettings } from '../context/SettingsContext';
+import { FLASH_INTERVAL_MS } from '../config';
+import { pickRandomFill } from '../utils/random';
 
 /**
  * Public API returned by useTrainer.
@@ -29,6 +31,7 @@ export type TrainerReturn = {
 };
 
 export function useTrainer(): TrainerReturn {
+  const { settings } = useSettings();
   const [seed, setSeed] = useState(() => Math.random());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -36,7 +39,10 @@ export function useTrainer(): TrainerReturn {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
-  const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, SELECTION_COUNT), [seed]);
+  const selection: Kana[] = useMemo(
+    () => pickRandomFill(KATAKANA, settings.rows * settings.cols),
+    [seed, settings.rows, settings.cols]
+  );
   const current = selection[currentIndex];
   const total = selection.length;
   const isLast = currentIndex >= Math.max(0, total - 1);
@@ -63,9 +69,10 @@ export function useTrainer(): TrainerReturn {
 
   const flashErrorTwice = useCallback(() => {
     setFlash(true);
-    setTimeout(() => setFlash(false), FLASH_INTERVAL_MS);
-    setTimeout(() => setFlash(true), FLASH_INTERVAL_MS * 2);
-    setTimeout(() => setFlash(false), FLASH_INTERVAL_MS * 3);
+    const d = FLASH_INTERVAL_MS;
+    setTimeout(() => setFlash(false), d);
+    setTimeout(() => setFlash(true), d * 2);
+    setTimeout(() => setFlash(false), d * 3);
   }, []);
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -79,11 +86,8 @@ export function useTrainer(): TrainerReturn {
         advance();
       } else {
         setInput('');
-        setAttempts((prev) => {
-          const next = prev + 1;
-          if (next >= HINT_THRESHOLD) setShowHint(true);
-          return next;
-        });
+        // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
+        setAttempts((prev) => prev + 1);
         flashErrorTwice();
       }
     }

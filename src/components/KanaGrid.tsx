@@ -6,18 +6,29 @@ type Props = {
   items: Kana[];
   currentIndex: number;
   flash: boolean;
+  cols: number;
+  fontRem: number;
 };
 
-export function KanaGrid({ items, currentIndex, flash }: Props) {
+export function KanaGrid({ items, currentIndex, flash, cols, fontRem }: Props) {
+  const gapRem = 0.5; // matches gap-x-2
+  const desiredRem = Math.round(fontRem * 1.14 * 100) / 100; // keep proportion to font size
+  const width = `min(${desiredRem}rem, calc((100% - ${(cols - 1) * gapRem}rem) / ${cols}))`;
   return (
-    <div className="grid grid-cols-[repeat(2,max-content)] md:grid-cols-[repeat(5,max-content)] gap-x-2 gap-y-3 justify-center items-center">
+    <div
+      className="grid gap-x-2 gap-y-3 justify-center items-center"
+      style={{ gridTemplateColumns: `repeat(${cols}, ${width})` }}
+    >
       {items.map((item, idx) => (
         <KanaTile
-          key={item.kana}
+          key={`${item.kana}-${idx}`}
           kana={item.kana}
           romaji={item.romaji}
           isCurrent={idx === currentIndex}
           flash={idx === currentIndex ? flash : false}
+          // width controlled via grid track size
+          fontRem={fontRem}
+          dim={idx < currentIndex}
         />
       ))}
     </div>
