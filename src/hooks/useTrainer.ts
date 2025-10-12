@@ -83,6 +83,9 @@ export function useTrainer(): TrainerReturn {
     if (val.length >= need) {
       const expected = current.romaji.slice(0, need).toLowerCase();
       if (val.slice(0, need).toLowerCase() === expected) {
+        // Clear immediately to avoid leftover trailing characters (e.g. 'chi').
+        setInput('');
+        try { (e.currentTarget as HTMLInputElement).value = ''; } catch {}
         advance();
       } else {
         setInput('');
