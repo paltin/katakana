@@ -6,7 +6,7 @@ import { SettingsProvider, useSettings } from './context/SettingsContext';
 import { useTrainer } from './hooks/useTrainer';
 import './style.css';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function App() {
   return (
@@ -28,6 +28,28 @@ function InnerApp() {
     reshuffle,
   } = useTrainer();
   const { settings } = useSettings();
+  const [spaceDown, setSpaceDown] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        setSpaceDown(true);
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        setSpaceDown(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
@@ -38,7 +60,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
           text={current ? current.romaji : ''}
-          show={!!((showHint || settings.study) && current)}
+          show={!!((showHint || spaceDown) && current)}
         />
         <KanaGrid
           items={selection}
