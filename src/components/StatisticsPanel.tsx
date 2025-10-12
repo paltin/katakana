@@ -47,10 +47,11 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
           <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">
             {pool.map((k) => {
               const c = counts.get(k.romaji) ?? 0;
-              const isProblem = (problems[k.romaji] ?? 0) > 0;
+              const p = problems[k.romaji] ?? 0;
+              const color = p >= 3 ? '#ef4444' : p === 2 ? '#f6a04d' : p === 1 ? '#f5e08a' : settings.kanaColor;
               return (
                 <div key={k.romaji} className="flex items-center justify-between gap-1 rounded-md border border-neutral-800 bg-neutral-900/60 px-1 py-0.5">
-                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: isProblem ? '#f5e08a' : settings.kanaColor, fontSize: '2rem' }}>{k.kana}</span>
+                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color, fontSize: '2rem' }}>{k.kana}</span>
                   <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{c}</span>
                 </div>
               );
