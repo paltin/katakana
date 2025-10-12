@@ -84,6 +84,7 @@ function InnerApp() {
           cols={settings.cols}
           fontRem={settings.charRem}
           color={settings.kanaColor}
+          fontFamily={settings.kanaFont}
         />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button
