@@ -32,7 +32,7 @@ function InnerApp() {
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
-      <div className="w-full max-w-7xl mx-auto p-6 pt-[5.5rem] text-center">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-[1.375rem] text-center">
         <Hint show={!!(showHint && current)} text={current ? current.romaji : ''} />
         <KanaGrid
           items={selection}

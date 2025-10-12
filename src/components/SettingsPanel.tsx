@@ -42,7 +42,7 @@ export function SettingsPanel({ open, onClose }: Props) {
             <input
               type="number"
               min={1}
-              max={10}
+              max={12}
               value={settings.cols}
               onChange={(e) => update({ cols: Number(e.target.value) })}
               className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
