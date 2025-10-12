@@ -34,6 +34,9 @@ export function SettingsPanel({ open, onClose }: Props) {
             >
               <option value="Noto Serif JP">Noto Serif JP</option>
               <option value="Noto Sans JP">Noto Sans JP</option>
+              <option value="Shippori Mincho">Shippori Mincho</option>
+              <option value="Kosugi Maru">Kosugi Maru</option>
+              <option value="Sawarabi Mincho">Sawarabi Mincho</option>
             </select>
           </label>
           <label className="grid grid-cols-[1fr_auto] items-center gap-3">

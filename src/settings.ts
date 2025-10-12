@@ -55,7 +55,7 @@ function sanitizeSettings(obj: any): Settings {
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
   const study = Boolean(obj?.study ?? DEFAULT_SETTINGS.study);
   const kanaColor = typeof obj?.kanaColor === 'string' && obj.kanaColor ? String(obj.kanaColor) : DEFAULT_SETTINGS.kanaColor;
-  const allowedFonts = new Set(['Noto Serif JP', 'Noto Sans JP']);
+  const allowedFonts = new Set(['Noto Serif JP', 'Noto Sans JP', 'Shippori Mincho', 'Kosugi Maru', 'Sawarabi Mincho']);
   const rawFont = typeof obj?.kanaFont === 'string' ? String(obj.kanaFont) : DEFAULT_SETTINGS.kanaFont;
   const kanaFont = allowedFonts.has(rawFont) ? rawFont : DEFAULT_SETTINGS.kanaFont;
   return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont };
