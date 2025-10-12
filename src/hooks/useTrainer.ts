@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { KATAKANA, pickRandom, type Kana } from '../data/katakana';
+import { KATAKANA, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
+import { FLASH_INTERVAL_MS } from '../config';
+import { pickRandomFill } from '../utils/random';
 
 /**
  * Public API returned by useTrainer.
@@ -37,7 +39,10 @@ export function useTrainer(): TrainerReturn {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
-  const selection: Kana[] = useMemo(() => pickRandom(KATAKANA, settings.rows * settings.cols), [seed, settings.rows, settings.cols]);
+  const selection: Kana[] = useMemo(
+    () => pickRandomFill(KATAKANA, settings.rows * settings.cols),
+    [seed, settings.rows, settings.cols]
+  );
   const current = selection[currentIndex];
   const total = selection.length;
   const isLast = currentIndex >= Math.max(0, total - 1);
@@ -64,11 +69,11 @@ export function useTrainer(): TrainerReturn {
 
   const flashErrorTwice = useCallback(() => {
     setFlash(true);
-    const d = settings.flashIntervalMs;
+    const d = FLASH_INTERVAL_MS;
     setTimeout(() => setFlash(false), d);
     setTimeout(() => setFlash(true), d * 2);
     setTimeout(() => setFlash(false), d * 3);
-  }, [settings.flashIntervalMs]);
+  }, []);
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;

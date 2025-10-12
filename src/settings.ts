@@ -3,7 +3,6 @@ export type Settings = {
   cols: number; // characters per row
   charRem: number; // character font size in rem
   hintThreshold: number; // wrong tries before showing hint
-  flashIntervalMs: number; // visual flash step
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -11,7 +10,6 @@ export const DEFAULT_SETTINGS: Settings = {
   cols: 5,
   charRem: 3.75, // close to Tailwind text-6xl default
   hintThreshold: 2,
-  flashIntervalMs: 130,
 };
 
 const KEY = 'katakana.trainer.settings.v1';
@@ -45,10 +43,9 @@ function sanitizeSettings(obj: any): Settings {
   const derivedRows = legacyCount ? 2 : DEFAULT_SETTINGS.rows;
   const derivedCols = legacyCount ? Math.ceil(Number(legacyCount) / derivedRows) : DEFAULT_SETTINGS.cols;
 
-  const rows = clamp(Number(obj?.rows ?? derivedRows), 1, 5);
-  const cols = clamp(Number(obj?.cols ?? derivedCols), 1, 12);
+  const rows = Math.max(1, Number(obj?.rows ?? derivedRows));
+  const cols = Math.max(1, Number(obj?.cols ?? derivedCols));
   const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 2.5, 6);
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
-  const flashIntervalMs = clamp(Number(obj?.flashIntervalMs ?? DEFAULT_SETTINGS.flashIntervalMs), 80, 300);
-  return { rows, cols, charRem, hintThreshold, flashIntervalMs };
+  return { rows, cols, charRem, hintThreshold };
 }

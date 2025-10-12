@@ -21,14 +21,14 @@ export function KanaGrid({ items, currentIndex, flash, cols, fontRem }: Props) {
     >
       {items.map((item, idx) => (
         <KanaTile
-          key={item.kana}
+          key={`${item.kana}-${idx}`}
           kana={item.kana}
           romaji={item.romaji}
           isCurrent={idx === currentIndex}
           flash={idx === currentIndex ? flash : false}
           // width controlled via grid track size
           fontRem={fontRem}
-          />
+        />
       ))}
     </div>
   );

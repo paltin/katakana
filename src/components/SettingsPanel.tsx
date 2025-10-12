@@ -30,7 +30,6 @@ export function SettingsPanel({ open, onClose }: Props) {
             <input
               type="number"
               min={1}
-              max={5}
               value={settings.rows}
               onChange={(e) => update({ rows: Number(e.target.value) })}
               className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
@@ -42,7 +41,6 @@ export function SettingsPanel({ open, onClose }: Props) {
             <input
               type="number"
               min={1}
-              max={12}
               value={settings.cols}
               onChange={(e) => update({ cols: Number(e.target.value) })}
               className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
@@ -77,18 +75,7 @@ export function SettingsPanel({ open, onClose }: Props) {
             />
           </label>
 
-          <label className="grid grid-cols-[1fr_auto] items-center gap-3">
-            <span className="text-sm text-neutral-300">Flash interval (ms)</span>
-            <input
-              type="number"
-              min={80}
-              max={300}
-              step={10}
-              value={settings.flashIntervalMs}
-              onChange={(e) => update({ flashIntervalMs: Number(e.target.value) })}
-              className="w-24 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
-            />
-          </label>
+          
         </div>
 
         <div className="mt-5 flex items-center justify-between">
