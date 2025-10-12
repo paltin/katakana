@@ -1,6 +1,8 @@
 import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
+import { useState } from 'react';
+import { getScore } from '../stats/store';
 
 type Props = {
   open: boolean;
@@ -14,6 +16,7 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
   const { settings } = useSettings();
   if (!open) return null;
 
+  const [showWeights, setShowWeights] = useState(false);
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
@@ -44,15 +47,25 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
         </div>
 
         <div>
+          <div className="mb-2 flex items-center justify-end gap-2 text-sm">
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={showWeights} onChange={(e) => setShowWeights(e.target.checked)} />
+              <span className="text-neutral-300">show weights</span>
+            </label>
+          </div>
           <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">
             {pool.map((k) => {
               const c = counts.get(k.romaji) ?? 0;
               const p = problems[k.romaji] ?? 0;
               const color = p >= 3 ? '#ef4444' : p === 2 ? '#f6a04d' : p === 1 ? '#f5e08a' : settings.kanaColor;
+              // compute weight same as adaptive selection
+              const alpha = 0.7; const epsilon = 0.1;
+              const s = getScore(k.romaji);
+              const weight = (1 - epsilon) * (1 + alpha * s) + epsilon;
               return (
                 <div key={k.romaji} className="flex items-center justify-between gap-1 rounded-md border border-neutral-800 bg-neutral-900/60 px-1 py-0.5">
                   <span className="leading-none [font-family:'Noto Serif JP']" style={{ color, fontSize: '2rem' }}>{k.kana}</span>
-                  <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{c}</span>
+                  <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{showWeights ? weight.toFixed(2) : c}</span>
                 </div>
               );
             })}
