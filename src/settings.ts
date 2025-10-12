@@ -3,6 +3,7 @@ export type Settings = {
   cols: number; // characters per row
   charRem: number; // character font size in rem
   hintThreshold: number; // wrong tries before showing hint
+  study: boolean; // show romaji for current character
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -10,6 +11,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cols: 5,
   charRem: 3.75, // close to Tailwind text-6xl default
   hintThreshold: 2,
+  study: false,
 };
 
 const KEY = 'katakana.trainer.settings.v1';
@@ -47,5 +49,6 @@ function sanitizeSettings(obj: any): Settings {
   const cols = Math.max(1, Number(obj?.cols ?? derivedCols));
   const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 2.5, 6);
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
-  return { rows, cols, charRem, hintThreshold };
+  const study = Boolean(obj?.study ?? DEFAULT_SETTINGS.study);
+  return { rows, cols, charRem, hintThreshold, study };
 }

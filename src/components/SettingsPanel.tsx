@@ -25,6 +25,16 @@ export function SettingsPanel({ open, onClose }: Props) {
         </div>
 
         <div className="space-y-4">
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-sm text-neutral-300">Study mode (show reading)</span>
+            <input
+              type="checkbox"
+              checked={settings.study}
+              onChange={(e) => update({ study: e.target.checked })}
+              className="h-4 w-4 accent-neutral-400"
+            />
+          </label>
+
           <label className="grid grid-cols-[1fr_auto] items-center gap-3">
             <span className="text-sm text-neutral-300">Rows</span>
             <input
