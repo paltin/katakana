@@ -73,6 +73,7 @@ function InnerApp() {
           flash={flash}
           cols={settings.cols}
           fontRem={settings.charRem}
+          color={settings.kanaColor}
         />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button

@@ -4,6 +4,7 @@ export type Settings = {
   charRem: number; // character font size in rem
   hintThreshold: number; // wrong tries before showing hint
   study: boolean; // show romaji for current character
+  kanaColor: string; // hex color for kana glyphs
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -12,6 +13,7 @@ export const DEFAULT_SETTINGS: Settings = {
   charRem: 3.75, // close to Tailwind text-6xl default
   hintThreshold: 2,
   study: false,
+  kanaColor: '#c8c8c8',
 };
 
 const KEY = 'katakana.trainer.settings.v1';
@@ -47,8 +49,10 @@ function sanitizeSettings(obj: any): Settings {
 
   const rows = Math.max(1, Number(obj?.rows ?? derivedRows));
   const cols = Math.max(1, Number(obj?.cols ?? derivedCols));
-  const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 2.5, 6);
+  const charRem = clamp(Number(obj?.charRem ?? DEFAULT_SETTINGS.charRem), 1, 6);
   const hintThreshold = clamp(Number(obj?.hintThreshold ?? DEFAULT_SETTINGS.hintThreshold), 1, 3);
   const study = Boolean(obj?.study ?? DEFAULT_SETTINGS.study);
-  return { rows, cols, charRem, hintThreshold, study };
+  const kanaColor = typeof obj?.kanaColor === 'string' && obj.kanaColor ? String(obj.kanaColor) : DEFAULT_SETTINGS.kanaColor;
+  return { rows, cols, charRem, hintThreshold, study, kanaColor };
 }
+

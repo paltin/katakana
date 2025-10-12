@@ -26,6 +26,15 @@ export function SettingsPanel({ open, onClose }: Props) {
 
         <div className="space-y-4">
           <label className="grid grid-cols-[1fr_auto] items-center gap-3">
+            <span className="text-sm text-neutral-300">Character color</span>
+            <input
+              type="color"
+              value={settings.kanaColor}
+              onChange={(e) => update({ kanaColor: e.target.value })}
+              className="h-8 w-12 cursor-pointer rounded-md border border-neutral-700 bg-neutral-800 p-0"
+            />
+          </label>
+          <label className="grid grid-cols-[1fr_auto] items-center gap-3">
             <span className="text-sm text-neutral-300">Rows</span>
             <input
               type="number"
@@ -54,24 +63,12 @@ export function SettingsPanel({ open, onClose }: Props) {
             </div>
             <input
               type="range"
-              min={2.5}
+              min={1}
               max={6}
               step={0.1}
               value={settings.charRem}
               onChange={(e) => update({ charRem: Number(e.target.value) })}
               className="w-full accent-neutral-400"
-            />
-          </label>
-
-          <label className="grid grid-cols-[1fr_auto] items-center gap-3">
-            <span className="text-sm text-neutral-300">Hint after N mistakes</span>
-            <input
-              type="number"
-              min={1}
-              max={3}
-              value={settings.hintThreshold}
-              onChange={(e) => update({ hintThreshold: Number(e.target.value) })}
-              className="w-20 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
             />
           </label>
 

@@ -8,9 +8,10 @@ type Props = {
   flash: boolean;
   cols: number;
   fontRem: number;
+  color?: string;
 };
 
-export function KanaGrid({ items, currentIndex, flash, cols, fontRem }: Props) {
+export function KanaGrid({ items, currentIndex, flash, cols, fontRem, color }: Props) {
   const gapRem = 0.5; // matches gap-x-2
   const desiredRem = Math.round(fontRem * 1.14 * 100) / 100; // keep proportion to font size
   const width = `min(${desiredRem}rem, calc((100% - ${(cols - 1) * gapRem}rem) / ${cols}))`;
@@ -28,6 +29,7 @@ export function KanaGrid({ items, currentIndex, flash, cols, fontRem }: Props) {
           flash={idx === currentIndex ? flash : false}
           // width controlled via grid track size
           fontRem={fontRem}
+          color={color}
           dim={idx < currentIndex}
         />
       ))}
