@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS: Settings = {
   charRem: 3.75, // close to Tailwind text-6xl default
   hintThreshold: 2,
   study: false,
-  kanaColor: '#e7e7ea',
+  kanaColor: '#c8c8c8',
 };
 
 const KEY = 'katakana.trainer.settings.v1';
