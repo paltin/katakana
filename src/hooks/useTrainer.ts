@@ -4,7 +4,9 @@ import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
 import { FLASH_INTERVAL_MS } from '../config';
-import { pickRandomFill } from '../utils/random';
+// import { pickRandomFill } from '../utils/random';
+import { pickWeighted } from '../utils/weighted';
+import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect } from '../stats/store';
 
 /**
  * Public API returned by useTrainer.
@@ -43,15 +45,23 @@ export function useTrainer(): TrainerReturn {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
+  const [hadMistake, setHadMistake] = useState(false);
+  const [usedHint, setUsedHint] = useState(false);
 
   const pool: Kana[] = useMemo(() => {
     const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
     return set;
   }, [selected]);
-  const selection: Kana[] = useMemo(
-    () => pickRandomFill(pool, settings.rows * settings.cols),
-    [seed, settings.rows, settings.cols, pool]
-  );
+  const selection: Kana[] = useMemo(() => {
+    const n = settings.rows * settings.cols;
+    const alpha = 0.7; const epsilon = 0.1;
+    const weightFn = (k: Kana) => {
+      const s = getScore(k.romaji);
+      const w = 1 + alpha * s;
+      return (1 - epsilon) * w + epsilon * 1;
+    };
+    return pickWeighted(pool, weightFn, n);
+  }, [seed, settings.rows, settings.cols, pool]);
   const current = selection[currentIndex];
   const total = selection.length;
   const isLast = currentIndex >= Math.max(0, total - 1);
@@ -64,6 +74,9 @@ export function useTrainer(): TrainerReturn {
     setAttempts(0);
     setShowHint(false);
     setProblemCounts({});
+    setHadMistake(false);
+    setUsedHint(false);
+    decayAll();
   }, [seed]);
 
   const advance = useCallback(() => {
@@ -75,6 +88,8 @@ export function useTrainer(): TrainerReturn {
     setInput('');
     setAttempts(0);
     setShowHint(false);
+    setHadMistake(false);
+    setUsedHint(false);
   }, [currentIndex, selection.length]);
 
   const flashErrorTwice = useCallback(() => {
@@ -93,6 +108,9 @@ export function useTrainer(): TrainerReturn {
     if (val.length >= need) {
       const expected = current.romaji.slice(0, need).toLowerCase();
       if (val.slice(0, need).toLowerCase() === expected) {
+        if (!hadMistake && !usedHint && current) {
+          smoothCorrect(current.romaji);
+        }
         advance();
       } else {
         setInput('');
@@ -102,10 +120,12 @@ export function useTrainer(): TrainerReturn {
           ...prev,
           [current.romaji]: (prev[current.romaji] ?? 0) + 1,
         }));
+        setHadMistake(true);
+        bumpMistake(current.romaji);
         flashErrorTwice();
       }
     }
-  }, [current, advance, flashErrorTwice]);
+  }, [current, advance, flashErrorTwice, hadMistake, usedHint]);
 
   const next = useCallback(() => advance(), [advance]);
   const reset = useCallback(() => {
@@ -122,6 +142,8 @@ export function useTrainer(): TrainerReturn {
       ...prev,
       [current.romaji]: (prev[current.romaji] ?? 0) + 1,
     }));
+    setUsedHint(true);
+    bumpHint(current.romaji);
   }, [current]);
 
   return {
