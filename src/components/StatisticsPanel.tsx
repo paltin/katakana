@@ -13,7 +13,7 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
   const { settings } = useSettings();
   if (!open) return null;
 
-  const total = selection.length || 1;
+  // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
   const pool: Kana[] = (selected.size
@@ -32,7 +32,7 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-5xl rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[1.4rem] font-semibold">Statistics (current layout)</h2>
+          <h2 className="text-[1.4rem] font-semibold">Statistics (current layout) - {pool.length}</h2>
           <button
             onClick={onClose}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-800 hover:bg-neutral-700"
@@ -42,16 +42,14 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
           </button>
         </div>
 
-        <div className="max-h-[80vh] overflow-y-auto">
-          <div className="grid gap-1.5 grid-cols-[repeat(auto-fill,minmax(110px,max-content))] auto-rows-max">
+        <div>
+          <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">
             {pool.map((k) => {
               const c = counts.get(k.romaji) ?? 0;
-              const pct = Math.round((c / total) * 1000) / 10; // one decimal
               return (
-                <div key={k.romaji} className="flex items-center gap-1.5 rounded-md border border-neutral-800 bg-neutral-900/60 px-1.5 py-0.5">
+                <div key={k.romaji} className="flex items-center justify-between gap-1 rounded-md border border-neutral-800 bg-neutral-900/60 px-1 py-0.5">
                   <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: settings.kanaColor, fontSize: '2rem' }}>{k.kana}</span>
-                  <span className="text-neutral-500 text-xs">-</span>
-                  <span className="text-neutral-300" style={{ fontSize: '16px' }}><span className="opacity-60">{c}</span> · {pct}%</span>
+                  <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{c}</span>
                 </div>
               );
             })}
@@ -61,5 +59,6 @@ export function StatisticsPanel({ open, onClose, selection }: Props) {
     </div>
   );
 }
+
 
 
