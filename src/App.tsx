@@ -3,6 +3,9 @@ import { HintRow } from './components/HintRow';
 import { AnswerInput } from './components/AnswerInput';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
+import { FilterProvider } from './context/FilterContext';
+import { FilterPanel } from './components/FilterPanel';
+import { KATAKANA } from './data/katakana';
 import { useTrainer } from './hooks/useTrainer';
 import './style.css';
 
@@ -11,7 +14,9 @@ import { useEffect, useState } from 'react';
 export default function App() {
   return (
     <SettingsProvider>
-      <InnerApp />
+      <FilterProvider allKeys={KATAKANA.map(k => k.romaji)}>
+        <InnerApp />
+      </FilterProvider>
     </SettingsProvider>
   );
 }
@@ -50,6 +55,7 @@ function InnerApp() {
     };
   }, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
@@ -87,7 +93,17 @@ function InnerApp() {
           <span aria-hidden>⚙️</span>
         </button>
 
+        <button
+          aria-label="Filter"
+          className="fixed bottom-4 right-36 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-2xl shadow transition hover:bg-neutral-800 [font-family:'Noto Serif JP']"
+          onClick={() => setFilterOpen(true)}
+          title="Filter"
+        >
+          <span aria-hidden>ア</span>
+        </button>
+
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>
   );

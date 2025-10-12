@@ -3,7 +3,8 @@ export type Kana = {
   romaji: string;
 };
 
-// Basic katakana set (gojūon). Romaji uses 2-letter forms for シ/チ/ツ: si, ti, tu.
+// Basic katakana set (gojūon) + dakuten/handakuten rows.
+// Romaji uses 2-letter forms for シ/チ/ツ: si, ti, tu.
 export const KATAKANA: Kana[] = [
   { kana: 'ア', romaji: 'a' },
   { kana: 'イ', romaji: 'i' },
@@ -51,5 +52,32 @@ export const KATAKANA: Kana[] = [
   { kana: 'ワ', romaji: 'wa' },
   { kana: 'ヲ', romaji: 'wo' },
   { kana: 'ン', romaji: 'n' },
+  // Dakuten
+  { kana: 'ガ', romaji: 'ga' },
+  { kana: 'ギ', romaji: 'gi' },
+  { kana: 'グ', romaji: 'gu' },
+  { kana: 'ゲ', romaji: 'ge' },
+  { kana: 'ゴ', romaji: 'go' },
+  { kana: 'ザ', romaji: 'za' },
+  { kana: 'ジ', romaji: 'zi' },
+  { kana: 'ズ', romaji: 'zu' },
+  { kana: 'ゼ', romaji: 'ze' },
+  { kana: 'ゾ', romaji: 'zo' },
+  { kana: 'ダ', romaji: 'da' },
+  { kana: 'ヂ', romaji: 'di' },
+  { kana: 'ヅ', romaji: 'du' },
+  { kana: 'デ', romaji: 'de' },
+  { kana: 'ド', romaji: 'do' },
+  { kana: 'バ', romaji: 'ba' },
+  { kana: 'ビ', romaji: 'bi' },
+  { kana: 'ブ', romaji: 'bu' },
+  { kana: 'ベ', romaji: 'be' },
+  { kana: 'ボ', romaji: 'bo' },
+  // Handakuten
+  { kana: 'パ', romaji: 'pa' },
+  { kana: 'ピ', romaji: 'pi' },
+  { kana: 'プ', romaji: 'pu' },
+  { kana: 'ペ', romaji: 'pe' },
+  { kana: 'ポ', romaji: 'po' },
 ];
 
