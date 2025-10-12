@@ -31,20 +31,28 @@ function InnerApp() {
     flash,
     handleInputChange,
     reshuffle,
+    markHintUsed,
+    problemCounts,
   } = useTrainer();
   const { settings } = useSettings();
   const [spaceDown, setSpaceDown] = useState(false);
 
   useEffect(() => {
+    const spaceHeld = { current: false } as { current: boolean };
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
-        setSpaceDown(true);
+        if (!spaceHeld.current) {
+          spaceHeld.current = true;
+          setSpaceDown(true);
+          markHintUsed();
+        }
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
+        spaceHeld.current = false;
         setSpaceDown(false);
       }
     };
@@ -115,7 +123,7 @@ function InnerApp() {
         </button>
 
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} />
+        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} />
         <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>
