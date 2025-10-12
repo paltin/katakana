@@ -86,11 +86,8 @@ export function useTrainer(): TrainerReturn {
         advance();
       } else {
         setInput('');
-        setAttempts((prev) => {
-          const next = prev + 1;
-          if (next >= settings.hintThreshold) setShowHint(true);
-          return next;
-        });
+        // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
+        setAttempts((prev) => prev + 1);
         flashErrorTwice();
       }
     }

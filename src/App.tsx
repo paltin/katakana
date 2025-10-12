@@ -23,7 +23,6 @@ function InnerApp() {
     current,
     input,
     flash,
-    showHint,
     handleInputChange,
     reshuffle,
   } = useTrainer();
@@ -60,7 +59,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
           text={current ? current.romaji : ''}
-          show={!!((showHint || spaceDown) && current)}
+          show={!!(spaceDown && current)}
         />
         <KanaGrid
           items={selection}
