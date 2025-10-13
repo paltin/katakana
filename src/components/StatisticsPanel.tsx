@@ -2,7 +2,7 @@ import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
 import { useState } from 'react';
-import { getScore } from '../stats/store';
+import { getScore, getMaxDuplicates, setMaxDuplicates } from '../stats/store';
 
 type Props = {
   open: boolean;
@@ -47,10 +47,21 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
         </div>
 
         <div>
-          <div className="mb-2 flex items-center justify-end gap-2 text-sm">
+          <div className="mb-2 flex items-center justify-end gap-4 text-sm">
             <label className="inline-flex items-center gap-2">
               <input type="checkbox" checked={showWeights} onChange={(e) => setShowWeights(e.target.checked)} />
               <span className="text-neutral-300">show weights</span>
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <span className="text-neutral-300">max duplicates</span>
+              <input
+                type="number"
+                className="w-16 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
+                min={1}
+                max={10}
+                defaultValue={getMaxDuplicates()}
+                onChange={(e) => setMaxDuplicates(Number(e.target.value))}
+              />
             </label>
           </div>
           <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">

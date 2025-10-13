@@ -84,3 +84,19 @@ export function getScore(romaji: string): number {
   return stats[romaji]?.score ?? 0;
 }
 
+// Simple persistence for adaptive config (max duplicates)
+const KEY_MAXDUPS = 'katakana.trainer.maxDuplicates.v1';
+export function getMaxDuplicates(defaultValue = 3): number {
+  try {
+    const raw = localStorage.getItem(KEY_MAXDUPS);
+    if (!raw) return defaultValue;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return defaultValue;
+    return Math.max(1, Math.min(10, n));
+  } catch {
+    return defaultValue;
+  }
+}
+export function setMaxDuplicates(n: number) {
+  try { localStorage.setItem(KEY_MAXDUPS, String(Math.max(1, Math.min(10, n)))); } catch {}
+}

@@ -5,8 +5,8 @@ import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
 import { FLASH_INTERVAL_MS } from '../config';
 // import { pickRandomFill } from '../utils/random';
-import { pickWeighted } from '../utils/weighted';
-import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect } from '../stats/store';
+import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
+import { shuffleInPlace } from '../utils/random';
 
 /**
  * Public API returned by useTrainer.
@@ -55,12 +55,51 @@ export function useTrainer(): TrainerReturn {
   const selection: Kana[] = useMemo(() => {
     const n = settings.rows * settings.cols;
     const alpha = 0.7; const epsilon = 0.1;
-    const weightFn = (k: Kana) => {
+    const maxDup = getMaxDuplicates();
+    const weights = pool.map((k) => {
       const s = getScore(k.romaji);
-      const w = 1 + alpha * s;
-      return (1 - epsilon) * w + epsilon * 1;
+      return (1 - epsilon) * (1 + alpha * s) + epsilon;
+    });
+    const sumW = weights.reduce((a, b) => a + b, 0);
+    const probs = weights.map((w) => (w > 0 ? w / sumW : 0));
+    const cumsum: number[] = [];
+    probs.reduce((acc, p, i) => (cumsum[i] = acc + p, acc + p), 0);
+    const counts: Record<string, number> = {};
+    const out: Kana[] = [];
+    const sampleIndex = () => {
+      const r = Math.random();
+      let lo = 0, hi = cumsum.length - 1;
+      while (lo < hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (r <= cumsum[mid]) hi = mid; else lo = mid + 1;
+      }
+      return lo;
     };
-    return pickWeighted(pool, weightFn, n);
+    for (let t = 0; t < n; t++) {
+      let placed = false;
+      for (let tries = 0; tries < 50; tries++) {
+        const idx = sampleIndex();
+        const k = pool[idx];
+        const key = k.romaji;
+        const c = counts[key] ?? 0;
+        if (c < maxDup) {
+          counts[key] = c + 1; out.push(k); placed = true; break;
+        }
+      }
+      if (!placed) {
+        // fallback: pick first under cap
+        const idx = pool.findIndex((k) => (counts[k.romaji] ?? 0) < maxDup);
+        if (idx >= 0) {
+          const k = pool[idx];
+          counts[k.romaji] = (counts[k.romaji] ?? 0) + 1; out.push(k);
+        } else {
+          // if all at cap, just push random
+          out.push(pool[Math.floor(Math.random() * pool.length)]);
+        }
+      }
+    }
+    shuffleInPlace(out);
+    return out;
   }, [seed, settings.rows, settings.cols, pool]);
   const current = selection[currentIndex];
   const total = selection.length;
