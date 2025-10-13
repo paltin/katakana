@@ -66,6 +66,14 @@ function InnerApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
+  const onToggleHighlight = (romaji: string) => {
+    setHighlighted((prev) => {
+      const next = new Set(prev);
+      if (next.has(romaji)) next.delete(romaji); else next.add(romaji);
+      return next;
+    });
+  };
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
@@ -85,6 +93,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           color={settings.kanaColor}
           fontFamily={settings.kanaFont}
+          highlightRomaji={highlighted}
         />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button
@@ -124,7 +133,7 @@ function InnerApp() {
         </button>
 
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} />
+        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} highlighted={highlighted} onToggleHighlight={onToggleHighlight} />
         <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>

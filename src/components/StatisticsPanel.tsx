@@ -1,7 +1,7 @@
 import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { getScore, getMaxDuplicates, setMaxDuplicates } from '../stats/store';
 
 type Props = {
@@ -9,14 +9,17 @@ type Props = {
   onClose: () => void;
   selection: Kana[]; // current grid items (may include duplicates)
   problems: Record<string, number>;
+  highlighted: Set<string>;
+  onToggleHighlight: (romaji: string) => void;
 };
 
-export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
+export function StatisticsPanel({ open, onClose, selection, problems, highlighted, onToggleHighlight }: Props) {
   const { selected } = useFilters();
   const { settings } = useSettings();
   if (!open) return null;
 
   const [showWeights, setShowWeights] = useState(false);
+  const [sortByWeight, setSortByWeight] = useState(false);
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
@@ -30,6 +33,13 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
   for (const k of selection) {
     counts.set(k.romaji, (counts.get(k.romaji) ?? 0) + 1);
   }
+
+  const alpha = 0.7; const epsilon = 0.1;
+  const decorated = useMemo(() => pool.map((k) => ({
+    k,
+    weight: (1 - epsilon) * (1 + alpha * getScore(k.romaji)) + epsilon,
+  })), [pool]);
+  const list = useMemo(() => sortByWeight ? [...decorated].sort((a,b)=> b.weight - a.weight) : decorated, [decorated, sortByWeight]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
@@ -53,6 +63,10 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
               <span className="text-neutral-300">show weights</span>
             </label>
             <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={sortByWeight} onChange={(e) => setSortByWeight(e.target.checked)} />
+              <span className="text-neutral-300">sort by weight</span>
+            </label>
+            <label className="inline-flex items-center gap-2">
               <span className="text-neutral-300">max duplicates</span>
               <input
                 type="number"
@@ -65,19 +79,16 @@ export function StatisticsPanel({ open, onClose, selection, problems }: Props) {
             </label>
           </div>
           <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">
-            {pool.map((k) => {
+            {list.map(({k, weight}) => {
               const c = counts.get(k.romaji) ?? 0;
               const p = problems[k.romaji] ?? 0;
               const color = p >= 3 ? '#ef4444' : p === 2 ? '#f6a04d' : p === 1 ? '#f5e08a' : settings.kanaColor;
-              // compute weight same as adaptive selection
-              const alpha = 0.7; const epsilon = 0.1;
-              const s = getScore(k.romaji);
-              const weight = (1 - epsilon) * (1 + alpha * s) + epsilon;
+              const isHighlighted = highlighted.has(k.romaji);
               return (
-                <div key={k.romaji} className="flex items-center justify-between gap-1 rounded-md border border-neutral-800 bg-neutral-900/60 px-1 py-0.5">
-                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color, fontSize: '2rem' }}>{k.kana}</span>
+                <button key={k.romaji} onClick={() => onToggleHighlight(k.romaji)} className={`flex items-center justify-between gap-1 rounded-md border px-1 py-0.5 ${isHighlighted ? 'border-yellow-400' : 'border-neutral-800'} bg-neutral-900/60`}>
+                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: isHighlighted ? '#ffd54a' : color, fontSize: '2rem' }}>{k.kana}</span>
                   <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{showWeights ? weight.toFixed(2) : c}</span>
-                </div>
+                </button>
               );
             })}
           </div>
