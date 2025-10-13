@@ -28,12 +28,23 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // Swallow the event completely so it doesn't reach app handlers
       e.preventDefault();
+      (e as any).stopImmediatePropagation?.();
+      onClose();
+    };
+    const handlerUp = (e: KeyboardEvent) => {
+      e.preventDefault();
+      (e as any).stopImmediatePropagation?.();
       onClose();
     };
     window.addEventListener('keydown', handler, { capture: true });
+    window.addEventListener('keyup', handlerUp, { capture: true });
     panelRef.current?.focus();
-    return () => window.removeEventListener('keydown', handler, { capture: true } as any);
+    return () => {
+      window.removeEventListener('keydown', handler, { capture: true } as any);
+      window.removeEventListener('keyup', handlerUp, { capture: true } as any);
+    };
   }, [onClose]);
 
   return (
