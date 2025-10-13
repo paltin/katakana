@@ -25,17 +25,16 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
   const cols = Math.min(5, Math.max(1, sorted.length));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-32">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative rounded-lg border border-neutral-800 bg-neutral-900 p-3 text-neutral-100 shadow-xl">
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2 flex items-center justify-center">
           <h3 className="text-base font-semibold">Mistakes this layout</h3>
-          <button onClick={onClose} className="inline-flex h-7 w-7 items-center justify-center rounded border border-neutral-700 bg-neutral-800 hover:bg-neutral-700" aria-label="Close">✕</button>
         </div>
         <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, max-content)` }}>
           {sorted.map(({ k }) => (
             <div key={k.romaji} className="flex items-center justify-center rounded-md border border-neutral-700 bg-neutral-900/60 px-2 py-1">
-              <span className="text-[2rem] leading-none [font-family:'Noto Serif JP']" style={{ color: '#f5e08a' }}>{k.kana}</span>
+              <span className="text-[2rem] leading-none [font-family:'Noto Serif JP']" style={{ color: '#fff3a3' }}>{k.kana}</span>
             </div>
           ))}
         </div>
@@ -43,3 +42,5 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
     </div>
   );
 }
+
+
