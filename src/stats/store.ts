@@ -1,11 +1,14 @@
 const KEY = 'katakana.trainer.longstats.v1';
 
+import { PERFECT_STREAK_RESET, SMOOTH_BETA } from '../config';
+
 export type KanaStats = {
   score: number;
   attempts: number;
   mistakes: number;
   hints: number;
   updatedAt: number; // epoch ms
+  streakPerfect?: number; // consecutive perfect first-try corrects
 };
 
 export type Stats = Record<string, KanaStats>;
@@ -31,7 +34,7 @@ function saveStats(stats: Stats) {
 
 function ensure(stats: Stats, romaji: string): KanaStats {
   const s =
-    stats[romaji] ?? { score: 0, attempts: 0, mistakes: 0, hints: 0, updatedAt: 0 };
+    stats[romaji] ?? { score: 0, attempts: 0, mistakes: 0, hints: 0, updatedAt: 0, streakPerfect: 0 };
   stats[romaji] = s;
   return s;
 }
@@ -42,6 +45,7 @@ export function bumpMistake(romaji: string, weight = 1) {
   s.mistakes += 1;
   s.attempts += 1;
   s.score += weight;
+  s.streakPerfect = 0;
   s.updatedAt = now();
   saveStats(stats);
 }
@@ -52,15 +56,21 @@ export function bumpHint(romaji: string, weight = 1) {
   s.hints += 1;
   s.attempts += 1;
   s.score += weight;
+  s.streakPerfect = 0;
   s.updatedAt = now();
   saveStats(stats);
 }
 
-export function smoothCorrect(romaji: string, beta = 0.15) {
+export function smoothCorrect(romaji: string, beta = SMOOTH_BETA) {
   const stats = loadStats();
   const s = ensure(stats, romaji);
   s.attempts += 1;
   s.score = Math.max(0, s.score - beta);
+  s.streakPerfect = (s.streakPerfect ?? 0) + 1;
+  if ((s.streakPerfect ?? 0) >= PERFECT_STREAK_RESET) {
+    s.score = 0; // reset to baseline
+    s.streakPerfect = 0; // reset streak after achieving goal
+  }
   s.updatedAt = now();
   saveStats(stats);
 }
