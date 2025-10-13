@@ -66,12 +66,17 @@ function InnerApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
+  const [highlighted, setHighlighted] = useState<Record<string, string>>({});
+  const genPastel = () => `hsl(${Math.floor(Math.random()*360)} 90% 70%)`;
   const onToggleHighlight = (romaji: string) => {
     setHighlighted((prev) => {
-      const next = new Set(prev);
-      if (next.has(romaji)) next.delete(romaji); else next.add(romaji);
-      return next;
+      const copy = { ...prev };
+      if (copy[romaji]) {
+        delete copy[romaji];
+      } else {
+        copy[romaji] = genPastel();
+      }
+      return copy;
     });
   };
 
@@ -93,7 +98,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           color={settings.kanaColor}
           fontFamily={settings.kanaFont}
-          highlightRomajiColors={Object.fromEntries(Array.from(highlighted).map(r => [r, '#ffd54a']))}
+          highlightRomajiColors={highlighted}
         />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button
@@ -133,7 +138,7 @@ function InnerApp() {
         </button>
 
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} highlighted={highlighted} onToggleHighlight={onToggleHighlight} />
+        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} highlightedColors={highlighted} onToggleHighlight={onToggleHighlight} />
         <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>

@@ -9,11 +9,11 @@ type Props = {
   onClose: () => void;
   selection: Kana[]; // current grid items (may include duplicates)
   problems: Record<string, number>;
-  highlighted: Set<string>;
+  highlightedColors: Record<string, string>;
   onToggleHighlight: (romaji: string) => void;
 };
 
-export function StatisticsPanel({ open, onClose, selection, problems, highlighted, onToggleHighlight }: Props) {
+export function StatisticsPanel({ open, onClose, selection, problems, highlightedColors, onToggleHighlight }: Props) {
   const { selected } = useFilters();
   const { settings } = useSettings();
   if (!open) return null;
@@ -83,10 +83,10 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
               const c = counts.get(k.romaji) ?? 0;
               const p = problems[k.romaji] ?? 0;
               const color = p >= 3 ? '#ef4444' : p === 2 ? '#f6a04d' : p === 1 ? '#f5e08a' : settings.kanaColor;
-              const isHighlighted = highlighted.has(k.romaji);
+              const hlColor = highlightedColors[k.romaji];
               return (
-                <button key={k.romaji} onClick={() => onToggleHighlight(k.romaji)} className={`flex items-center justify-between gap-1 rounded-md border px-1 py-0.5 ${isHighlighted ? 'border-yellow-400' : 'border-neutral-800'} bg-neutral-900/60`}>
-                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: isHighlighted ? '#ffd54a' : color, fontSize: '2rem' }}>{k.kana}</span>
+                <button key={k.romaji} onClick={() => onToggleHighlight(k.romaji)} className={`flex items-center justify-between gap-1 rounded-md border px-1 py-0.5 ${hlColor ? 'border-yellow-400' : 'border-neutral-800'} bg-neutral-900/60 ${c === 0 && !hlColor ? 'opacity-50' : ''}`}>
+                  <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: hlColor ? hlColor : color, fontSize: '2rem' }}>{k.kana}</span>
                   <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{showWeights ? weight.toFixed(2) : c}</span>
                 </button>
               );
