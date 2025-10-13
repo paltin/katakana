@@ -27,7 +27,11 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-32">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative rounded-lg border border-neutral-800 bg-neutral-900 p-3 text-neutral-100 shadow-xl">
+      <div
+        className="relative rounded-lg border border-neutral-800 bg-neutral-900 p-3 text-neutral-100 shadow-xl"
+        onKeyDown={(e) => { e.preventDefault(); onClose(); }}
+        tabIndex={-1}
+      >
         <div className="mb-2 flex items-center justify-center">
           <h3 className="text-base font-semibold">Mistakes this layout</h3>
         </div>

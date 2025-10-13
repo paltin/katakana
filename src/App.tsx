@@ -38,10 +38,15 @@ function InnerApp() {
   } = useTrainer();
   const { settings } = useSettings();
   const [spaceDown, setSpaceDown] = useState(false);
+  const [mistakesOpen, setMistakesOpen] = useState(false);
 
   useEffect(() => {
     const spaceHeld = { current: false } as { current: boolean };
     const onKeyDown = (e: KeyboardEvent) => {
+      if (mistakesOpen) {
+        e.preventDefault();
+        return;
+      }
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
         if (!spaceHeld.current) {
@@ -52,6 +57,10 @@ function InnerApp() {
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
+      if (mistakesOpen) {
+        e.preventDefault();
+        return;
+      }
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
         spaceHeld.current = false;
@@ -64,7 +73,7 @@ function InnerApp() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, []);
+  }, [mistakesOpen]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -81,7 +90,6 @@ function InnerApp() {
       return copy;
     });
   };
-  const [mistakesOpen, setMistakesOpen] = useState(false);
 
   // When layout finishes, show mistakes popup if any
   useEffect(() => {
