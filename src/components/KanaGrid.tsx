@@ -10,9 +10,10 @@ type Props = {
   fontRem: number;
   color?: string;
   fontFamily?: string;
+  highlightRomajiColors?: Record<string, string>;
 };
 
-export function KanaGrid({ items, currentIndex, flash, cols, fontRem, color, fontFamily }: Props) {
+export function KanaGrid({ items, currentIndex, flash, cols, fontRem, color, fontFamily, highlightRomajiColors }: Props) {
   const gapRem = 0.5; // matches gap-x-2
   const desiredRem = Math.round(fontRem * 1.14 * 100) / 100; // keep proportion to font size
   const width = `min(${desiredRem}rem, calc((100% - ${(cols - 1) * gapRem}rem) / ${cols}))`;
@@ -32,6 +33,7 @@ export function KanaGrid({ items, currentIndex, flash, cols, fontRem, color, fon
           fontRem={fontRem}
           color={color}
           fontFamily={fontFamily}
+          highlightColor={highlightRomajiColors ? highlightRomajiColors[item.romaji] : undefined}
           dim={idx < currentIndex}
         />
       ))}

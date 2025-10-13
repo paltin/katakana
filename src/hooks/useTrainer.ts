@@ -3,8 +3,10 @@ import { KATAKANA, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
-import { FLASH_INTERVAL_MS } from '../config';
-import { pickRandomFill } from '../utils/random';
+import { FLASH_INTERVAL_MS, WEIGHT_GAMMA, WEIGHT_EPSILON } from '../config';
+// import { pickRandomFill } from '../utils/random';
+import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
+import { shuffleInPlace } from '../utils/random';
 
 /**
  * Public API returned by useTrainer.
@@ -21,6 +23,7 @@ export type TrainerReturn = {
   flash: boolean;
   showHint: boolean;
   problemCounts: Record<string, number>;
+  finished: boolean;
   // Derived
   isLast: boolean;
   progress: number; // 0..1
@@ -43,15 +46,69 @@ export function useTrainer(): TrainerReturn {
   const [, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
+  const [hadMistake, setHadMistake] = useState(false);
+  const [usedHint, setUsedHint] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   const pool: Kana[] = useMemo(() => {
     const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
     return set;
   }, [selected]);
-  const selection: Kana[] = useMemo(
-    () => pickRandomFill(pool, settings.rows * settings.cols),
-    [seed, settings.rows, settings.cols, pool]
-  );
+  const selection: Kana[] = useMemo(() => {
+    const n = settings.rows * settings.cols;
+    const maxDup = getMaxDuplicates();
+
+    // Scores -> raw weights using a steep transform so heavy items dominate.
+    const scores = pool.map((k) => getScore(k.romaji));
+    const rawWeights = scores.map((s) => WEIGHT_EPSILON + Math.pow(1 + s, WEIGHT_GAMMA));
+    const sumRaw = rawWeights.reduce((a, b) => a + b, 0);
+
+    // Expected counts proportional to weights
+    const expected = rawWeights.map((w) => (sumRaw > 0 ? (n * w) / sumRaw : 0));
+    const caps = scores.map((s) => (s > 0 ? maxDup : 1));
+
+    // Start with floors under caps
+    const counts = expected.map((e, i) => Math.min(caps[i], Math.floor(e)));
+    let used = counts.reduce((a, b) => a + b, 0);
+
+    // Largest-remainder distribution while respecting caps
+    const remainders = expected
+      .map((e, i) => ({ i, r: e - Math.floor(e) }))
+      .sort((a, b) => b.r - a.r);
+    for (const { i } of remainders) {
+      if (used >= n) break;
+      if (counts[i] < caps[i]) { counts[i]++; used++; }
+    }
+
+    // If still short due to caps, fill remaining slots biased by raw weight
+    while (used < n) {
+      const candidates = counts
+        .map((c, i) => ({ i, room: caps[i] - c }))
+        .filter((x) => x.room > 0);
+      if (candidates.length === 0) break;
+      const total = candidates.reduce((a, x) => a + rawWeights[x.i], 0);
+      let r = Math.random() * total;
+      let chosen = candidates[0].i;
+      for (const x of candidates) {
+        r -= rawWeights[x.i];
+        if (r <= 0) { chosen = x.i; break; }
+      }
+      counts[chosen]++; used++;
+    }
+
+    const out: Kana[] = [];
+    for (let i = 0; i < pool.length; i++) {
+      for (let k = 0; k < counts[i]; k++) out.push(pool[i]);
+    }
+
+    // If we could not reach N due to extreme caps/weights, backfill ignoring caps
+    while (out.length < n && pool.length > 0) {
+      out.push(pool[Math.floor(Math.random() * pool.length)]);
+    }
+
+    shuffleInPlace(out);
+    return out;
+  }, [seed, settings.rows, settings.cols, pool]);
   const current = selection[currentIndex];
   const total = selection.length;
   const isLast = currentIndex >= Math.max(0, total - 1);
@@ -64,17 +121,24 @@ export function useTrainer(): TrainerReturn {
     setAttempts(0);
     setShowHint(false);
     setProblemCounts({});
+    setHadMistake(false);
+    setUsedHint(false);
+    decayAll();
+    setFinished(false);
   }, [seed]);
 
   const advance = useCallback(() => {
     if (currentIndex < selection.length - 1) {
       setCurrentIndex((x) => x + 1);
     } else {
-      setSeed(Math.random());
+      // mark layout finished; App will decide to reshuffle after showing popup
+      setFinished(true);
     }
     setInput('');
     setAttempts(0);
     setShowHint(false);
+    setHadMistake(false);
+    setUsedHint(false);
   }, [currentIndex, selection.length]);
 
   const flashErrorTwice = useCallback(() => {
@@ -93,6 +157,9 @@ export function useTrainer(): TrainerReturn {
     if (val.length >= need) {
       const expected = current.romaji.slice(0, need).toLowerCase();
       if (val.slice(0, need).toLowerCase() === expected) {
+        if (!hadMistake && !usedHint && current) {
+          smoothCorrect(current.romaji);
+        }
         advance();
       } else {
         setInput('');
@@ -102,10 +169,12 @@ export function useTrainer(): TrainerReturn {
           ...prev,
           [current.romaji]: (prev[current.romaji] ?? 0) + 1,
         }));
+        setHadMistake(true);
+        bumpMistake(current.romaji);
         flashErrorTwice();
       }
     }
-  }, [current, advance, flashErrorTwice]);
+  }, [current, advance, flashErrorTwice, hadMistake, usedHint]);
 
   const next = useCallback(() => advance(), [advance]);
   const reset = useCallback(() => {
@@ -122,6 +191,8 @@ export function useTrainer(): TrainerReturn {
       ...prev,
       [current.romaji]: (prev[current.romaji] ?? 0) + 1,
     }));
+    setUsedHint(true);
+    bumpHint(current.romaji);
   }, [current]);
 
   return {
@@ -133,6 +204,7 @@ export function useTrainer(): TrainerReturn {
     flash,
     showHint,
     problemCounts,
+    finished,
     isLast,
     progress,
     handleInputChange,
