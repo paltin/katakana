@@ -20,7 +20,7 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
   if (!open) return null;
 
   const [showWeights, setShowWeights] = useState(false);
-  const [sortByWeight, setSortByWeight] = useState(false);
+  const [sortByWeight, setSortByWeight] = useState(true);
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
