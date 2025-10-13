@@ -49,6 +49,7 @@ function InnerApp() {
       }
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
+        (e as any).stopImmediatePropagation?.();
         if (!spaceHeld.current) {
           spaceHeld.current = true;
           setSpaceDown(true);
@@ -63,15 +64,16 @@ function InnerApp() {
       }
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
+        (e as any).stopImmediatePropagation?.();
         spaceHeld.current = false;
         setSpaceDown(false);
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('keydown', onKeyDown, { capture: true });
+    window.addEventListener('keyup', onKeyUp, { capture: true });
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('keydown', onKeyDown, { capture: true } as any);
+      window.removeEventListener('keyup', onKeyUp, { capture: true } as any);
     };
   }, [mistakesOpen]);
   const [settingsOpen, setSettingsOpen] = useState(false);

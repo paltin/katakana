@@ -26,24 +26,23 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
   const cols = Math.min(5, Math.max(1, sorted.length));
 
   const panelRef = useRef<HTMLDivElement>(null);
+  const armedRef = useRef(false);
   useEffect(() => {
+    // Arm after a short delay to ignore trailing keyup/keydown from the last typed key
+    const armT = window.setTimeout(() => { armedRef.current = true; }, 80);
     const handler = (e: KeyboardEvent) => {
       // Swallow the event completely so it doesn't reach app handlers
-      e.preventDefault();
-      (e as any).stopImmediatePropagation?.();
-      onClose();
-    };
-    const handlerUp = (e: KeyboardEvent) => {
+      if (!armedRef.current) return; // ignore the key event that triggered popup appearance
       e.preventDefault();
       (e as any).stopImmediatePropagation?.();
       onClose();
     };
     window.addEventListener('keydown', handler, { capture: true });
-    window.addEventListener('keyup', handlerUp, { capture: true });
     panelRef.current?.focus();
     return () => {
       window.removeEventListener('keydown', handler, { capture: true } as any);
-      window.removeEventListener('keyup', handlerUp, { capture: true } as any);
+      window.clearTimeout(armT);
+      armedRef.current = false;
     };
   }, [onClose]);
 

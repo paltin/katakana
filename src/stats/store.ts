@@ -26,9 +26,18 @@ export function loadStats(): Stats {
   }
 }
 
+function notifyStatsUpdated() {
+  try {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('stats:updated'));
+    }
+  } catch {}
+}
+
 function saveStats(stats: Stats) {
   try {
     localStorage.setItem(KEY, JSON.stringify(stats));
+    notifyStatsUpdated();
   } catch {}
 }
 
@@ -113,5 +122,8 @@ export function setMaxDuplicates(n: number) {
 
 // Clear all long-lived stats (weights)
 export function clearStats() {
-  try { localStorage.removeItem(KEY); } catch {}
+  try {
+    localStorage.removeItem(KEY);
+    notifyStatsUpdated();
+  } catch {}
 }

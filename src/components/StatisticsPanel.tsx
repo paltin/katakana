@@ -1,7 +1,7 @@
 import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { getScore, getMaxDuplicates, setMaxDuplicates, clearStats } from '../stats/store';
 import { WEIGHT_EPSILON, WEIGHT_GAMMA } from '../config';
 
@@ -21,6 +21,13 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
 
   const [showWeights, setShowWeights] = useState(false);
   const [sortByWeight, setSortByWeight] = useState(true);
+  const [tick, setTick] = useState(0); // bumps when stats change
+
+  useEffect(() => {
+    const onUpdate = () => setTick((t) => t + 1);
+    window.addEventListener('stats:updated', onUpdate);
+    return () => window.removeEventListener('stats:updated', onUpdate);
+  }, []);
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
@@ -45,8 +52,8 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
       k,
       weight: raw[i] * scale, // relative weight; ~1.00 baseline
     }));
-  }, [pool]);
-  const list = useMemo(() => sortByWeight ? [...decorated].sort((a,b)=> b.weight - a.weight) : decorated, [decorated, sortByWeight]);
+  }, [pool, tick]);
+  const list = useMemo(() => sortByWeight ? [...decorated].sort((a,b)=> b.weight - a.weight) : decorated, [decorated, sortByWeight, tick]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
