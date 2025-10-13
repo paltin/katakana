@@ -10,10 +10,10 @@ type Props = {
   dim?: boolean; // render with reduced opacity (already solved)
   color?: string; // glyph color
   fontFamily?: string; // font family for kana
-  highlighted?: boolean; // highlight override
+  highlightColor?: string; // highlight override color
 };
 
-export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim, color, fontFamily, highlighted }: Props) {
+export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim, color, fontFamily, highlightColor }: Props) {
   const base =
     "aspect-square grid place-items-center rounded-xl text-6xl transition";
   const visual = isCurrent
@@ -29,7 +29,7 @@ export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim, 
         ...(fontRem ? { fontSize: `${fontRem}rem` } : {}),
         ...(color ? { color } : {}),
         ...(fontFamily ? { fontFamily } : {}),
-        ...(highlighted ? { color: '#ffd54a', opacity: 1 } : {}),
+        ...(highlightColor ? { color: highlightColor, opacity: 1 } : {}),
       }}
     >
       {kana}

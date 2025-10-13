@@ -93,7 +93,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           color={settings.kanaColor}
           fontFamily={settings.kanaFont}
-          highlightRomaji={highlighted}
+          highlightRomajiColors={Object.fromEntries(Array.from(highlighted).map(r => [r, '#ffd54a']))}
         />
         <AnswerInput value={input} onChange={handleInputChange} />
         <button
@@ -139,3 +139,4 @@ function InnerApp() {
     </div>
   );
 }
+
