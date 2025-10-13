@@ -56,10 +56,8 @@ export function useTrainer(): TrainerReturn {
     const n = settings.rows * settings.cols;
     const alpha = 0.7; const epsilon = 0.1;
     const maxDup = getMaxDuplicates();
-    const weights = pool.map((k) => {
-      const s = getScore(k.romaji);
-      return (1 - epsilon) * (1 + alpha * s) + epsilon;
-    });
+    const scores = pool.map((k) => getScore(k.romaji));
+    const weights = scores.map((s) => (1 - epsilon) * (1 + alpha * s) + epsilon);
     const sumW = weights.reduce((a, b) => a + b, 0);
     const probs = weights.map((w) => (w > 0 ? w / sumW : 0));
     const cumsum: number[] = [];
@@ -82,13 +80,18 @@ export function useTrainer(): TrainerReturn {
         const k = pool[idx];
         const key = k.romaji;
         const c = counts[key] ?? 0;
-        if (c < maxDup) {
+        const score = scores[idx];
+        const capForKey = score > 0 ? maxDup : 1; // allow duplicates only for problematic kana
+        if (c < capForKey) {
           counts[key] = c + 1; out.push(k); placed = true; break;
         }
       }
       if (!placed) {
         // fallback: pick first under cap
-        const idx = pool.findIndex((k) => (counts[k.romaji] ?? 0) < maxDup);
+        const idx = pool.findIndex((k, i) => {
+          const cap = scores[i] > 0 ? maxDup : 1;
+          return (counts[k.romaji] ?? 0) < cap;
+        });
         if (idx >= 0) {
           const k = pool[idx];
           counts[k.romaji] = (counts[k.romaji] ?? 0) + 1; out.push(k);
