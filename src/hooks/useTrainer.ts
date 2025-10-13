@@ -23,6 +23,7 @@ export type TrainerReturn = {
   flash: boolean;
   showHint: boolean;
   problemCounts: Record<string, number>;
+  finished: boolean;
   // Derived
   isLast: boolean;
   progress: number; // 0..1
@@ -47,6 +48,7 @@ export function useTrainer(): TrainerReturn {
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
   const [hadMistake, setHadMistake] = useState(false);
   const [usedHint, setUsedHint] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   const pool: Kana[] = useMemo(() => {
     const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
@@ -119,13 +121,15 @@ export function useTrainer(): TrainerReturn {
     setHadMistake(false);
     setUsedHint(false);
     decayAll();
+    setFinished(false);
   }, [seed]);
 
   const advance = useCallback(() => {
     if (currentIndex < selection.length - 1) {
       setCurrentIndex((x) => x + 1);
     } else {
-      setSeed(Math.random());
+      // mark layout finished; App will decide to reshuffle after showing popup
+      setFinished(true);
     }
     setInput('');
     setAttempts(0);
@@ -197,6 +201,7 @@ export function useTrainer(): TrainerReturn {
     flash,
     showHint,
     problemCounts,
+    finished,
     isLast,
     progress,
     handleInputChange,

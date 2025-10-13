@@ -3,6 +3,7 @@ import { HintRow } from './components/HintRow';
 import { AnswerInput } from './components/AnswerInput';
 import { SettingsPanel } from './components/SettingsPanel';
 import { StatisticsPanel } from './components/StatisticsPanel';
+import { MistakesPopup } from './components/MistakesPopup';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
 import { FilterProvider } from './context/FilterContext';
 import { FilterPanel } from './components/FilterPanel';
@@ -33,6 +34,7 @@ function InnerApp() {
     reshuffle,
     markHintUsed,
     problemCounts,
+    finished,
   } = useTrainer();
   const { settings } = useSettings();
   const [spaceDown, setSpaceDown] = useState(false);
@@ -79,6 +81,19 @@ function InnerApp() {
       return copy;
     });
   };
+  const [mistakesOpen, setMistakesOpen] = useState(false);
+
+  // When layout finishes, show mistakes popup if any
+  useEffect(() => {
+    if (!finished) return;
+    const hasProblems = Object.values(problemCounts).some((v) => v > 0);
+    if (hasProblems) {
+      setMistakesOpen(true);
+    } else {
+      // no mistakes; immediately proceed
+      reshuffle();
+    }
+  }, [finished]);
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
@@ -139,6 +154,7 @@ function InnerApp() {
 
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
         <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} highlightedColors={highlighted} onToggleHighlight={onToggleHighlight} />
+        <MistakesPopup open={mistakesOpen} onClose={() => { setMistakesOpen(false); reshuffle(); }} problems={problemCounts} />
         <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>
