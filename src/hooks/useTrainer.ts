@@ -3,7 +3,7 @@ import { KATAKANA, type Kana } from '../data/katakana';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
-import { FLASH_INTERVAL_MS } from '../config';
+import { FLASH_INTERVAL_MS, WEIGHT_GAMMA, WEIGHT_EPSILON } from '../config';
 // import { pickRandomFill } from '../utils/random';
 import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
 import { shuffleInPlace } from '../utils/random';
@@ -56,53 +56,56 @@ export function useTrainer(): TrainerReturn {
   }, [selected]);
   const selection: Kana[] = useMemo(() => {
     const n = settings.rows * settings.cols;
-    const alpha = 0.7; const epsilon = 0.1;
     const maxDup = getMaxDuplicates();
+
+    // Scores -> raw weights using a steep transform so heavy items dominate.
     const scores = pool.map((k) => getScore(k.romaji));
-    const weights = scores.map((s) => (1 - epsilon) * (1 + alpha * s) + epsilon);
-    const sumW = weights.reduce((a, b) => a + b, 0);
-    const probs = weights.map((w) => (w > 0 ? w / sumW : 0));
-    const cumsum: number[] = [];
-    probs.reduce((acc, p, i) => (cumsum[i] = acc + p, acc + p), 0);
-    const counts: Record<string, number> = {};
-    const out: Kana[] = [];
-    const sampleIndex = () => {
-      const r = Math.random();
-      let lo = 0, hi = cumsum.length - 1;
-      while (lo < hi) {
-        const mid = Math.floor((lo + hi) / 2);
-        if (r <= cumsum[mid]) hi = mid; else lo = mid + 1;
-      }
-      return lo;
-    };
-    for (let t = 0; t < n; t++) {
-      let placed = false;
-      for (let tries = 0; tries < 50; tries++) {
-        const idx = sampleIndex();
-        const k = pool[idx];
-        const key = k.romaji;
-        const c = counts[key] ?? 0;
-        const score = scores[idx];
-        const capForKey = score > 0 ? maxDup : 1; // allow duplicates only for problematic kana
-        if (c < capForKey) {
-          counts[key] = c + 1; out.push(k); placed = true; break;
-        }
-      }
-      if (!placed) {
-        // fallback: pick first under cap
-        const idx = pool.findIndex((k, i) => {
-          const cap = scores[i] > 0 ? maxDup : 1;
-          return (counts[k.romaji] ?? 0) < cap;
-        });
-        if (idx >= 0) {
-          const k = pool[idx];
-          counts[k.romaji] = (counts[k.romaji] ?? 0) + 1; out.push(k);
-        } else {
-          // if all at cap, just push random
-          out.push(pool[Math.floor(Math.random() * pool.length)]);
-        }
-      }
+    const rawWeights = scores.map((s) => WEIGHT_EPSILON + Math.pow(1 + s, WEIGHT_GAMMA));
+    const sumRaw = rawWeights.reduce((a, b) => a + b, 0);
+
+    // Expected counts proportional to weights
+    const expected = rawWeights.map((w) => (sumRaw > 0 ? (n * w) / sumRaw : 0));
+    const caps = scores.map((s) => (s > 0 ? maxDup : 1));
+
+    // Start with floors under caps
+    const counts = expected.map((e, i) => Math.min(caps[i], Math.floor(e)));
+    let used = counts.reduce((a, b) => a + b, 0);
+
+    // Largest-remainder distribution while respecting caps
+    const remainders = expected
+      .map((e, i) => ({ i, r: e - Math.floor(e) }))
+      .sort((a, b) => b.r - a.r);
+    for (const { i } of remainders) {
+      if (used >= n) break;
+      if (counts[i] < caps[i]) { counts[i]++; used++; }
     }
+
+    // If still short due to caps, fill remaining slots biased by raw weight
+    while (used < n) {
+      const candidates = counts
+        .map((c, i) => ({ i, room: caps[i] - c }))
+        .filter((x) => x.room > 0);
+      if (candidates.length === 0) break;
+      const total = candidates.reduce((a, x) => a + rawWeights[x.i], 0);
+      let r = Math.random() * total;
+      let chosen = candidates[0].i;
+      for (const x of candidates) {
+        r -= rawWeights[x.i];
+        if (r <= 0) { chosen = x.i; break; }
+      }
+      counts[chosen]++; used++;
+    }
+
+    const out: Kana[] = [];
+    for (let i = 0; i < pool.length; i++) {
+      for (let k = 0; k < counts[i]; k++) out.push(pool[i]);
+    }
+
+    // If we could not reach N due to extreme caps/weights, backfill ignoring caps
+    while (out.length < n && pool.length > 0) {
+      out.push(pool[Math.floor(Math.random() * pool.length)]);
+    }
+
     shuffleInPlace(out);
     return out;
   }, [seed, settings.rows, settings.cols, pool]);

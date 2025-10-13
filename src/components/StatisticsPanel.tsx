@@ -3,6 +3,7 @@ import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
 import { useState, useMemo } from 'react';
 import { getScore, getMaxDuplicates, setMaxDuplicates, clearStats } from '../stats/store';
+import { WEIGHT_EPSILON, WEIGHT_GAMMA } from '../config';
 
 type Props = {
   open: boolean;
@@ -34,11 +35,17 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
     counts.set(k.romaji, (counts.get(k.romaji) ?? 0) + 1);
   }
 
-  const alpha = 0.7; const epsilon = 0.1;
-  const decorated = useMemo(() => pool.map((k) => ({
-    k,
-    weight: (1 - epsilon) * (1 + alpha * getScore(k.romaji)) + epsilon,
-  })), [pool]);
+  // Show normalized weights (mean ≈ 1 across pool) using the same transform as selection.
+  const decorated = useMemo(() => {
+    const scores = pool.map((k) => getScore(k.romaji));
+    const raw = scores.map((s) => WEIGHT_EPSILON + Math.pow(1 + s, WEIGHT_GAMMA));
+    const sumRaw = raw.reduce((a, b) => a + b, 0);
+    const scale = sumRaw > 0 ? (pool.length / sumRaw) : 0;
+    return pool.map((k, i) => ({
+      k,
+      weight: raw[i] * scale, // relative weight; ~1.00 baseline
+    }));
+  }, [pool]);
   const list = useMemo(() => sortByWeight ? [...decorated].sort((a,b)=> b.weight - a.weight) : decorated, [decorated, sortByWeight]);
 
   return (
