@@ -20,6 +20,9 @@ export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim, 
     ? `${base} border ${flash ? 'ring-2 ring-neutral-300' : ''} border-neutral-600 bg-neutral-900 hover:-translate-y-0.5 hover:bg-neutral-800`
     : `${base} border border-transparent bg-transparent${dim ? ' opacity-40' : ''}`;
 
+  // When tile is dimmed (answered), ignore highlight override so it becomes grey/semi-transparent
+  const finalColor = dim ? color : (highlightColor ?? color);
+
   return (
     <div
       className={visual}
@@ -27,9 +30,8 @@ export function KanaTile({ kana, romaji, isCurrent, flash, width, fontRem, dim, 
       style={{
         ...(width ? { width } : {}),
         ...(fontRem ? { fontSize: `${fontRem}rem` } : {}),
-        ...(color ? { color } : {}),
+        ...(finalColor ? { color: finalColor } : {}),
         ...(fontFamily ? { fontFamily } : {}),
-        ...(highlightColor ? { color: highlightColor, opacity: 1 } : {}),
       }}
     >
       {kana}

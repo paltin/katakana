@@ -84,8 +84,14 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
               const p = problems[k.romaji] ?? 0;
               const color = p >= 3 ? '#ef4444' : p === 2 ? '#f6a04d' : p === 1 ? '#f5e08a' : settings.kanaColor;
               const hlColor = highlightedColors[k.romaji];
+              const disabled = c === 0 && !hlColor; // unavailable in layout and not already highlighted
               return (
-                <button key={k.romaji} onClick={() => onToggleHighlight(k.romaji)} className={`flex items-center justify-between gap-1 rounded-md border px-1 py-0.5 ${hlColor ? 'border-yellow-400' : 'border-neutral-800'} bg-neutral-900/60 ${c === 0 && !hlColor ? 'opacity-50' : ''}`}>
+                <button
+                  key={k.romaji}
+                  onClick={() => !disabled && onToggleHighlight(k.romaji)}
+                  disabled={disabled}
+                  className={`flex items-center justify-between gap-1 rounded-md border px-1 py-0.5 ${hlColor ? 'border-yellow-400' : 'border-neutral-800'} bg-neutral-900/60 ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+                >
                   <span className="leading-none [font-family:'Noto Serif JP']" style={{ color: hlColor ? hlColor : color, fontSize: '2rem' }}>{k.kana}</span>
                   <span className="text-neutral-300 opacity-70" style={{ fontSize: '16px' }}>{showWeights ? weight.toFixed(2) : c}</span>
                 </button>
