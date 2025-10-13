@@ -2,7 +2,7 @@ import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
 import { useState, useMemo } from 'react';
-import { getScore, getMaxDuplicates, setMaxDuplicates } from '../stats/store';
+import { getScore, getMaxDuplicates, setMaxDuplicates, clearStats } from '../stats/store';
 
 type Props = {
   open: boolean;
@@ -77,6 +77,13 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
                 onChange={(e) => setMaxDuplicates(Number(e.target.value))}
               />
             </label>
+            <button
+              onClick={() => { clearStats(); /* force re-render */ window.requestAnimationFrame(()=>location.reload()); }}
+              className="rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm hover:bg-neutral-700"
+              title="Reset adaptive weights"
+            >
+              Reset weights
+            </button>
           </div>
           <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">
             {list.map(({k, weight}) => {

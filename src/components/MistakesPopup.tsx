@@ -1,6 +1,7 @@
 import { KATAKANA } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { getScore } from '../stats/store';
+import { useEffect, useRef } from 'react';
 
 type Props = {
   open: boolean;
@@ -24,12 +25,23 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
 
   const cols = Math.min(5, Math.max(1, sorted.length));
 
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      e.preventDefault();
+      onClose();
+    };
+    window.addEventListener('keydown', handler, { capture: true });
+    panelRef.current?.focus();
+    return () => window.removeEventListener('keydown', handler, { capture: true } as any);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-32">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div
+        ref={panelRef}
         className="relative rounded-lg border border-neutral-800 bg-neutral-900 p-3 text-neutral-100 shadow-xl"
-        onKeyDown={(e) => { e.preventDefault(); onClose(); }}
         tabIndex={-1}
       >
         <div className="mb-2 flex items-center justify-center">

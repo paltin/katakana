@@ -100,3 +100,8 @@ export function getMaxDuplicates(defaultValue = 3): number {
 export function setMaxDuplicates(n: number) {
   try { localStorage.setItem(KEY_MAXDUPS, String(Math.max(1, Math.min(10, n)))); } catch {}
 }
+
+// Clear all long-lived stats (weights)
+export function clearStats() {
+  try { localStorage.removeItem(KEY); } catch {}
+}
