@@ -156,7 +156,7 @@ function InnerApp() {
         <button
           aria-label="Shuffle"
           className="fixed bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
-          onClick={reshuffle}
+          onClick={reshuffle} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); e.stopPropagation(); } }} onKeyUp={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); e.stopPropagation(); } }} type="button"
           title="Shuffle"
         >
           <span aria-hidden>🔀</span>
