@@ -71,9 +71,15 @@ function InnerApp() {
           highlightRomajiColors={highlighted}
         />
         <AnswerInput value={input} onChange={handleInputChange} />
+        <FabBar
+          onShuffle={reshuffle}
+          onOpenStats={() => setStatsOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenFilter={() => setFilterOpen(true)}
+        />
         <button
           aria-label="Shuffle"
-          className="fixed bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
+          className="hidden fixed bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
           onClick={reshuffle} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); e.stopPropagation(); } }} onKeyUp={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); e.stopPropagation(); } }} type="button"
           title="Shuffle"
         >
@@ -82,7 +88,7 @@ function InnerApp() {
 
         <button
           aria-label="Statistics"
-          className="fixed bottom-4 right-52 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
+          className="hidden fixed bottom-4 right-52 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
           onClick={() => setStatsOpen(true)}
           title="Statistics"
         >
@@ -91,7 +97,7 @@ function InnerApp() {
 
         <button
           aria-label="Settings"
-          className="fixed bottom-4 right-20 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
+          className="hidden fixed bottom-4 right-20 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
           onClick={() => setSettingsOpen(true)}
           title="Settings"
         >
@@ -100,7 +106,7 @@ function InnerApp() {
 
         <button
           aria-label="Filter"
-          className="fixed bottom-4 right-36 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-2xl shadow transition hover:bg-neutral-800 [font-family:'Noto Serif JP']"
+          className="hidden fixed bottom-4 right-36 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-2xl shadow transition hover:bg-neutral-800 [font-family:'Noto Serif JP']"
           onClick={() => setFilterOpen(true)}
           title="Filter"
         >
