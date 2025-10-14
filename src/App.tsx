@@ -3,13 +3,15 @@ import { HintRow } from './components/HintRow';
 import { AnswerInput } from './components/AnswerInput';
 import { SettingsPanel } from './components/SettingsPanel';
 import { StatisticsPanel } from './components/StatisticsPanel';
-import { MistakesPopup } from './components/MistakesPopup';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
 import { FilterProvider } from './context/FilterContext';
 import { FilterPanel } from './components/FilterPanel';
 import { KATAKANA } from './data/katakana';
 import { useTrainer } from './hooks/useTrainer';
 import './style.css';
+import { useSpaceHint } from './hooks/useSpaceHint';
+import { useHighlights } from './hooks/useHighlights';
+import { MistakesManager } from './components/MistakesManager';
 
 import { useEffect, useState } from 'react';
 
@@ -37,45 +39,11 @@ function InnerApp() {
     finished,
   } = useTrainer();
   const { settings } = useSettings();
-  const [spaceDown, setSpaceDown] = useState(false);
-  const [mistakesOpen, setMistakesOpen] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const { hintHeld } = useSpaceHint(overlayOpen, () => markHintUsed());
+  const { highlighted, onToggleHighlight } = useHighlights();
 
-  useEffect(() => {
-    const spaceHeld = { current: false } as { current: boolean };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (mistakesOpen) {
-        e.preventDefault();
-        return;
-      }
-      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
-        e.preventDefault();
-        (e as any).stopImmediatePropagation?.();
-        if (!spaceHeld.current) {
-          spaceHeld.current = true;
-          setSpaceDown(true);
-          markHintUsed();
-        }
-      }
-    };
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (mistakesOpen) {
-        e.preventDefault();
-        return;
-      }
-      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
-        e.preventDefault();
-        (e as any).stopImmediatePropagation?.();
-        spaceHeld.current = false;
-        setSpaceDown(false);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown, { capture: true });
-    window.addEventListener('keyup', onKeyUp, { capture: true });
-    return () => {
-      window.removeEventListener('keydown', onKeyDown, { capture: true } as any);
-      window.removeEventListener('keyup', onKeyUp, { capture: true } as any);
-    };
-  }, [mistakesOpen]);
+  
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -140,7 +108,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
           text={current ? current.romaji : ''}
-          show={!!(spaceDown && current)}
+          show={!!(hintHeld && current)}
         />
         <KanaGrid
           items={selection}
@@ -191,7 +159,7 @@ function InnerApp() {
 
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
         <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} highlightedColors={highlighted} onToggleHighlight={onToggleHighlight} />
-        <MistakesPopup open={mistakesOpen} onClose={() => { setMistakesOpen(false); reshuffle(); }} problems={problemCounts} />
+        <MistakesManager finished={finished} problems={problemCounts} reshuffle={reshuffle} onOpenChange={setOverlayOpen} />
         <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>
