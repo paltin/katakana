@@ -1,4 +1,6 @@
-import { KATAKANA, type Kana } from '../data/katakana';
+import type { Kana } from '../data/katakana';
+import { useCharacterSet } from '../data/useCharacterSet';
+import { getItemKey } from '../data/registry';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -50,15 +52,17 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
+  const FULL = useCharacterSet();
   const pool: Kana[] = (selected.size
-    ? KATAKANA.filter((k) => selected.has(k.romaji))
-    : KATAKANA
+    ? FULL.filter((k) => selected.has(getItemKey(settings.script, k)))
+    : FULL
   ).slice();
 
   // Count occurrences in the current selection.
   const counts = new Map<string, number>();
   for (const k of selection) {
-    counts.set(k.romaji, (counts.get(k.romaji) ?? 0) + 1);
+    const key = getItemKey(settings.script, k);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 
   // Show normalized weights with same transform as selection.
@@ -111,7 +115,8 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
           </div>
           <div className="grid gap-1 grid-cols-[repeat(10,max-content)] auto-rows-max justify-center">
             {list.map(({k, weight}) => {
-              const c = counts.get(k.romaji) ?? 0;
+              const key = getItemKey(settings.script, k);
+              const c = counts.get(key) ?? 0;
               const p = problems[k.romaji] ?? 0;
               const color = p >= 3 ? '#ef4444' : p === 2 ? '#f6a04d' : p === 1 ? '#f5e08a' : settings.kanaColor;
               const hlColor = highlightedColors[k.romaji];

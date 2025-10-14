@@ -55,7 +55,7 @@ function InnerApp() {
           cols={settings.cols}
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
-          text={current ? current.romaji : ''}
+          text={current ? ((settings.script === 'kanji' && (settings as any).kanjiByMeaning) ? String((current as any).meaning ?? '') : current.romaji) : ''}
           show={!!(hintHeld && current)}
         />
         <KanaGrid
@@ -63,7 +63,7 @@ function InnerApp() {
           currentIndex={currentIndex}
           flash={flash}
           cols={settings.cols}
-          fontRem={settings.charRem}
+          fontRem={settings.script === 'kanji' ? Math.round(settings.charRem * 0.95 * 100) / 100 : settings.charRem}
           color={settings.kanaColor}
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}

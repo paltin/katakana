@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { KATAKANA, type Kana } from '../data/katakana';
+import type { Kana } from '../data/katakana';
+import { useCharacterSet } from '../data/useCharacterSet';
+import { getItemKey } from '../data/registry';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
@@ -50,11 +52,14 @@ export function useTrainer(): TrainerReturn {
   const [usedHint, setUsedHint] = useState(false);
   const [finished, setFinished] = useState(false);
 
+  const FULL: Kana[] = useCharacterSet();
   const pool: Kana[] = useMemo(() => {
-    const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
+    const base = FULL;
+    const set = base.filter(k => selected.has(getItemKey(settings.script, k)));
     return set;
-  }, [selected]);
+  }, [selected, FULL, settings.script]);
   const selection: Kana[] = useMemo(() => {
+    if (pool.length === 0) return [];
     const n = settings.rows * settings.cols;
     const maxDup = getMaxDuplicates();
 
@@ -153,6 +158,33 @@ export function useTrainer(): TrainerReturn {
     const val = e.target.value;
     setInput(val);
     if (!current) return;
+    const byMeaning = settings.script === 'kanji' && (settings as any).kanjiByMeaning;
+    if (byMeaning) {
+      const raw = String((current as any).meaning ?? '').toLowerCase();
+      const synonyms = raw.split(/[\/,]/).map(s => s.trim()).filter(Boolean);
+      const typed = val.trim().toLowerCase();
+      // Accept as soon as an exact synonym is typed
+      if (synonyms.includes(typed)) {
+        if (!hadMistake && !usedHint && current) {
+          smoothCorrect(current.romaji);
+        }
+        advance();
+      } else if (typed.length > 0 && typed.length >= Math.max(3, Math.max(...synonyms.map(s => s.length)))) {
+        // if user has typed at least max synonym length and no match, count as mistake
+        setInput('');
+        // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
+        setAttempts((prev) => prev + 1);
+        setProblemCounts((prev) => ({
+          ...prev,
+          [current.romaji]: (prev[current.romaji] ?? 0) + 1,
+        }));
+        setHadMistake(true);
+        bumpMistake(current.romaji);
+        flashErrorTwice();
+      }
+      return;
+    }
+    // Regular romaji mode
     const need = requiredLength(current.romaji);
     if (val.length >= need) {
       const expected = current.romaji.slice(0, need).toLowerCase();
@@ -163,7 +195,6 @@ export function useTrainer(): TrainerReturn {
         advance();
       } else {
         setInput('');
-        // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
         setAttempts((prev) => prev + 1);
         setProblemCounts((prev) => ({
           ...prev,

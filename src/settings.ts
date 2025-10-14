@@ -6,6 +6,8 @@ export type Settings = {
   study: boolean; // show romaji for current character
   kanaColor: string; // hex color for kana glyphs
   kanaFont: string; // CSS font-family for kana glyphs
+  script: 'katakana' | 'hiragana' | 'kanji'; // active character set
+  kanjiByMeaning: boolean; // in kanji mode, answer by meaning
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -16,6 +18,8 @@ export const DEFAULT_SETTINGS: Settings = {
   study: false,
   kanaColor: '#c8c8c8',
   kanaFont: 'Noto Serif JP',
+  script: 'katakana',
+  kanjiByMeaning: false,
 };
 
 const KEY = 'katakana.trainer.settings.v1';
@@ -58,6 +62,10 @@ function sanitizeSettings(obj: any): Settings {
   const allowedFonts = new Set(['Noto Serif JP', 'Noto Sans JP', 'Shippori Mincho', 'Kosugi Maru', 'Sawarabi Mincho']);
   const rawFont = typeof obj?.kanaFont === 'string' ? String(obj.kanaFont) : DEFAULT_SETTINGS.kanaFont;
   const kanaFont = allowedFonts.has(rawFont) ? rawFont : DEFAULT_SETTINGS.kanaFont;
-  return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont };
+  const allowedScripts = new Set(['katakana','hiragana','kanji']);
+  const rawScript = typeof obj?.script === 'string' ? obj.script : DEFAULT_SETTINGS.script;
+  const script = (allowedScripts.has(rawScript) ? rawScript : DEFAULT_SETTINGS.script) as Settings['script'];
+  const kanjiByMeaning = Boolean(obj?.kanjiByMeaning ?? DEFAULT_SETTINGS.kanjiByMeaning);
+  return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont, script, kanjiByMeaning };
 }
 
