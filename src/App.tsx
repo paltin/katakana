@@ -1,8 +1,9 @@
 import { KanaGrid } from './components/KanaGrid';
 import { HintRow } from './components/HintRow';
 import { AnswerInput } from './components/AnswerInput';
-import { SettingsPanel } from './components/SettingsPanel';
-import { StatisticsPanel } from './components/StatisticsPanel';
+import { lazy, Suspense, useState } from 'react';
+const SettingsPanel = lazy(() => import('./components/SettingsPanel').then(m => ({ default: m.SettingsPanel })));
+const StatisticsPanel = lazy(() => import('./components/StatisticsPanel').then(m => ({ default: m.StatisticsPanel })));
 import { useSettings } from './context/SettingsContext';
 import { FilterPanel } from './components/FilterPanel';
 import { AppProviders } from './AppProviders';
@@ -12,8 +13,6 @@ import { useSpaceHint } from './hooks/useSpaceHint';
 import { useHighlights } from './hooks/useHighlights';
 import { MistakesManager } from './components/MistakesManager';
 import { FabBar } from './components/FabBar';
-
-import { useState } from 'react';
 
 export default function App() {
   return (
@@ -73,22 +72,28 @@ function InnerApp() {
           onOpenFilter={() => setFilterOpen(true)}
         />
 
-        <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-        <StatisticsPanel
-          open={statsOpen}
-          onClose={() => setStatsOpen(false)}
-          selection={selection}
-          problems={problemCounts}
-          highlightedColors={highlighted}
-          onToggleHighlight={onToggleHighlight}
-        />
+        <Suspense fallback={null}>
+          <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <StatisticsPanel
+            open={statsOpen}
+            onClose={() => setStatsOpen(false)}
+            selection={selection}
+            problems={problemCounts}
+            highlightedColors={highlighted}
+            onToggleHighlight={onToggleHighlight}
+          />
+        </Suspense>
         <MistakesManager
           finished={finished}
           problems={problemCounts}
           reshuffle={reshuffle}
           onOpenChange={setOverlayOpen}
         />
-        <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
+        <Suspense fallback={null}>
+          <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
+        </Suspense>
       </div>
     </div>
   );
