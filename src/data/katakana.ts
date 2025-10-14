@@ -3,9 +3,10 @@ export type Kana = {
   romaji: string;
 };
 
-// Basic katakana set (gojūon) + dakuten/handakuten rows.
-// Romaji uses 2-letter forms for シ/チ/ツ: si, ti, tu.
+// Katakana gojūon + dakuten/handakuten.
+// Romaji intentionally uses 2-letter forms for si/ti/tu to match validation rules.
 export const KATAKANA: Kana[] = [
+  // Basic
   { kana: 'ア', romaji: 'a' },
   { kana: 'イ', romaji: 'i' },
   { kana: 'ウ', romaji: 'u' },
