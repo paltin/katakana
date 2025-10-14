@@ -63,7 +63,7 @@ function InnerApp() {
           currentIndex={currentIndex}
           flash={flash}
           cols={settings.cols}
-          fontRem={settings.charRem}
+          fontRem={settings.script === 'kanji' ? Math.round(settings.charRem * 0.95 * 100) / 100 : settings.charRem}
           color={settings.kanaColor}
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}

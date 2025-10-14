@@ -5,8 +5,12 @@ export function useSpaceHint(disabled = false, onHintUsed?: () => void) {
   const [hintHeld, setHintHeld] = useState(false);
 
   useEffect(() => {
+    const isTypingTarget = (el: Element | null) => !!el && (
+      (el as HTMLElement).tagName === 'INPUT' || (el as HTMLElement).tagName === 'TEXTAREA' || (el as HTMLElement).getAttribute('contenteditable') === 'true'
+    );
     const onKeyDown = (e: KeyboardEvent) => {
       if (disabled) return;
+      if (isTypingTarget(e.target as Element) || isTypingTarget(document.activeElement)) return;
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
         (e as any).stopImmediatePropagation?.();
@@ -19,6 +23,7 @@ export function useSpaceHint(disabled = false, onHintUsed?: () => void) {
     };
     const onKeyUp = (e: KeyboardEvent) => {
       if (disabled) return;
+      if (isTypingTarget(e.target as Element) || isTypingTarget(document.activeElement)) return;
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
         (e as any).stopImmediatePropagation?.();
