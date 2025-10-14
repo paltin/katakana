@@ -3,16 +3,19 @@ import { useFilters } from '../context/FilterContext';
 import { useCharacterSet } from '../data/useCharacterSet';
 import { useSettings } from '../context/SettingsContext';
 
-function Cell({ kana, romaji, active, onToggle }: { kana: string; romaji: string; active: boolean; onToggle: () => void }) {
+function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
   return (
     <button
       onClick={onToggle}
-      className={`inline-grid aspect-square w-10 place-items-center rounded-md border text-xl [font-family:'Noto Serif JP'] ${
+      className={`inline-grid aspect-square w-12 place-items-center rounded-md border text-xl [font-family:'Noto Serif JP'] ${
         active ? 'border-neutral-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/40 opacity-50'
       }`}
       title={romaji}
     >
-      {kana}
+      <div className="grid place-items-center">
+        <div>{kana}</div>
+        {subtitle && <div className="mt-0.5 text-[10px] leading-none text-neutral-300 [font-family:Tahoma]">{subtitle}</div>}
+      </div>
     </button>
   );
 }
@@ -50,7 +53,7 @@ function kanjiGroups(set: { romaji: string }[]): Group[] {
 
 export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { selected, toggle, setAll, clearAll } = useFilters();
-  const { settings } = useSettings();
+  const { settings, update } = useSettings();
   const set = useCharacterSet();
   const byRomaji = useMemo(() => new Map(set.map(k => [k.romaji, k] as const)), [set]);
   const groups: Group[] = useMemo(() => {
@@ -88,6 +91,12 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={() => setAll(set.map(k=>k.romaji))}>All</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={clearAll}>None</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={onClose}>Close</button>
+            {settings.script === 'kanji' && (
+              <label className="ml-2 inline-flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={settings.kanjiByMeaning} onChange={(e)=> update({ kanjiByMeaning: e.target.checked })} />
+                <span className="text-neutral-300">translation</span>
+              </label>
+            )}
           </div>
         </div>
         <div className="mt-2 space-y-3">
@@ -99,7 +108,8 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   const k = byRomaji.get(r);
                   if (!k) return null;
                   const active = selected.has(r);
-                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} />
+                  const subtitle = settings.script === 'kanji' ? (k as any).meaning : undefined;
+                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} />
                 })}
               </div>
             </div>

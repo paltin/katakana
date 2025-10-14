@@ -156,9 +156,12 @@ export function useTrainer(): TrainerReturn {
     const val = e.target.value;
     setInput(val);
     if (!current) return;
-    const need = requiredLength(current.romaji);
+    const answer = (settings.script === 'kanji' && (settings as any).kanjiByMeaning && (current as any).meaning)
+      ? String((current as any).meaning).toLowerCase()
+      : current.romaji.toLowerCase();
+    const need = (settings.script === 'kanji' && (settings as any).kanjiByMeaning) ? answer.length : requiredLength(current.romaji);
     if (val.length >= need) {
-      const expected = current.romaji.slice(0, need).toLowerCase();
+      const expected = answer.slice(0, need).toLowerCase();
       if (val.slice(0, need).toLowerCase() === expected) {
         if (!hadMistake && !usedHint && current) {
           smoothCorrect(current.romaji);
