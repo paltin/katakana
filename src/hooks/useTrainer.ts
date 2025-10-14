@@ -54,10 +54,12 @@ export function useTrainer(): TrainerReturn {
   const FULL: Kana[] = useCharacterSet();
   const pool: Kana[] = useMemo(() => {
     const base = FULL;
-    const set = selected.size ? base.filter(k => selected.has(k.romaji)) : base.slice();
+    // Always respect current selection; default state selects all in FilterProvider
+    const set = base.filter(k => selected.has(k.romaji));
     return set;
   }, [selected, FULL]);
   const selection: Kana[] = useMemo(() => {
+    if (pool.length === 0) return [];
     const n = settings.rows * settings.cols;
     const maxDup = getMaxDuplicates();
 
