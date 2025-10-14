@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFilters } from '../context/FilterContext';
 import { useCharacterSet } from '../data/useCharacterSet';
 import { getItemKey } from '../data/registry';
+import coreKanjiList from '../data/sets/kanji_core_list.json';
+import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 
 function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
@@ -42,32 +44,22 @@ function kanaGroups(): Group[] {
   ];
 }
 
-function kanjiGroups(set: { romaji: string; kana: string }[]): Group[] {
-  const numberReadings = ['ichi','ni','san','yon','go','roku','nana','hachi','kyuu','juu'];
-  const numbersKeys = Array.from(new Set(
-    set.filter(k => numberReadings.includes(k.romaji)).map(k => k.kana)
-  ));
-  const basicsKeys = Array.from(new Set(
-    set.filter(k => !numberReadings.includes(k.romaji)).map(k => k.kana)
-  ));
-  const out: Group[] = [];
-  if (numbersKeys.length) out.push({ label: 'Numbers', romaji: numbersKeys });
-  if (basicsKeys.length) out.push({ label: 'Basics', romaji: basicsKeys });
-  return out;
-}
+// legacy kanji grouping removed in favor of page-based lists
 
 export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { selected, toggle, setAll, clearAll } = useFilters();
   const { settings, update } = useSettings();
   const set = useCharacterSet();
   const byKey = useMemo(() => new Map(set.map(k => [getItemKey(settings.script, k), k] as const)), [set, settings.script]);
+  const [page, setPage] = useState(0);
   const groups: Group[] = useMemo(() => {
     if (settings.script === 'kanji') {
-      // kanji groups already return per-character keys (kana)
-      return kanjiGroups(set as any);
+      const pages = [coreKanjiList as string[], extraKanjiList as string[]];
+      const keys = (pages[page] || []) as string[];
+      return [{ romaji: keys }];
     }
     return kanaGroups();
-  }, [settings.script, set]);
+  }, [settings.script, page]);
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return; // only attach focus behavior when open
@@ -96,7 +88,21 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={() => setAll(set.map(k=>k.romaji))}>All</button>
+            {settings.script === 'kanji' && (
+              <div className="mr-2 inline-flex items-center gap-1">
+                <button className={`rounded-md border px-2 py-1 text-sm ${page===0?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(0)}>1</button>
+                <button className={`rounded-md border px-2 py-1 text-sm ${page===1?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(1)}>2</button>
+              </div>
+            )}
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={() => {
+              if (settings.script === 'kanji') {
+                const pages = [coreKanjiList as string[], extraKanjiList as string[]];
+                const keys = (pages[page] || []) as string[];
+                setAll(keys);
+              } else {
+                setAll(set.map(k => k.romaji));
+              }
+            }}>All</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={clearAll}>None</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={onClose}>Close</button>
             {settings.script === 'kanji' && (
