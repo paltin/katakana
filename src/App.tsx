@@ -13,7 +13,8 @@ import { useSpaceHint } from './hooks/useSpaceHint';
 import { useHighlights } from './hooks/useHighlights';
 import { MistakesManager } from './components/MistakesManager';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { FabBar } from './components/FabBar';
 
 export default function App() {
   return (
