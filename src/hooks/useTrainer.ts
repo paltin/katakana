@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { KATAKANA, type Kana } from '../data/katakana';
+import type { Kana } from '../data/katakana';
+import { useCharacterSet } from '../data/useCharacterSet';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
@@ -50,10 +51,12 @@ export function useTrainer(): TrainerReturn {
   const [usedHint, setUsedHint] = useState(false);
   const [finished, setFinished] = useState(false);
 
+  const FULL: Kana[] = useCharacterSet();
   const pool: Kana[] = useMemo(() => {
-    const set = selected.size ? KATAKANA.filter(k => selected.has(k.romaji)) : KATAKANA.slice();
+    const base = FULL;
+    const set = selected.size ? base.filter(k => selected.has(k.romaji)) : base.slice();
     return set;
-  }, [selected]);
+  }, [selected, FULL]);
   const selection: Kana[] = useMemo(() => {
     const n = settings.rows * settings.cols;
     const maxDup = getMaxDuplicates();

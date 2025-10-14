@@ -1,4 +1,4 @@
-import { KATAKANA } from '../data/katakana';
+import { useCharacterSet } from '../data/useCharacterSet';
 import { useFilters } from '../context/FilterContext';
 import { getScore } from '../stats/store';
 import { useEffect, useRef } from 'react';
@@ -12,7 +12,8 @@ type Props = {
 export function MistakesPopup({ open, onClose, problems }: Props) {
   useFilters();
   if (!open) return null;
-  const byRomaji = new Map(KATAKANA.map(k => [k.romaji, k] as const));
+  const set = useCharacterSet();
+  const byRomaji = new Map(set.map(k => [k.romaji, k] as const));
   const items = Object.entries(problems)
     .filter(([, c]) => c > 0)
     .map(([r]) => byRomaji.get(r)!)

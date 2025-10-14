@@ -1,6 +1,6 @@
-import { KATAKANA } from '../data/katakana';
 import { useEffect, useRef } from 'react';
 import { useFilters } from '../context/FilterContext';
+import { useCharacterSet } from '../data/useCharacterSet';
 
 function Cell({ kana, romaji, active, onToggle }: { kana: string; romaji: string; active: boolean; onToggle: () => void }) {
   return (
@@ -16,26 +16,13 @@ function Cell({ kana, romaji, active, onToggle }: { kana: string; romaji: string
   );
 }
 
-type RowDef = { left: string[]; right?: string[] };
+// legacy row definition kept for reference; unused in generic grid
 
-const rows: RowDef[] = [
-  { left: ['a','i','u','e','o'] },
-  { left: ['ka','ki','ku','ke','ko'], right: ['ga','gi','gu','ge','go'] },
-  { left: ['sa','si','su','se','so'], right: ['za','zi','zu','ze','zo'] },
-  { left: ['ta','ti','tu','te','to'], right: ['da','di','du','de','do'] },
-  { left: ['na','ni','nu','ne','no'] },
-  { left: ['ha','hi','fu','he','ho'], right: ['ba','bi','bu','be','bo'] },
-  { left: ['pa','pi','pu','pe','po'] },
-  { left: ['ma','mi','mu','me','mo'] },
-  { left: ['ya','yu','yo'] },
-  { left: ['ra','ri','ru','re','ro'] },
-  { left: ['wa','wo','n'] },
-];
-
-const byRomaji = new Map(KATAKANA.map(k => [k.romaji, k] as const));
+// byRomaji will be derived from current set
 
 export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { selected, toggle, setAll, clearAll } = useFilters();
+  const set = useCharacterSet();
   if (!open) return null;
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -63,36 +50,17 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={() => setAll(KATAKANA.map(k=>k.romaji))}>All</button>
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={() => setAll(set.map(k=>k.romaji))}>All</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={clearAll}>None</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={onClose}>Close</button>
           </div>
         </div>
 
-        <div className="space-y-2">
-          {rows.map((row, idx) => (
-            <div key={idx} className="flex items-center justify-center gap-2">
-              <div className="flex gap-2">
-                {row.left.map(r => {
-                  const k = byRomaji.get(r);
-                  if (!k) return null;
-                  const active = selected.has(r);
-                  return <Cell key={r} kana={k.kana} romaji={k.romaji} active={active} onToggle={() => toggle(r)} />
-                })}
-              </div>
-              {row.right && <div className="w-6" />}
-              {row.right && (
-                <div className="flex gap-2">
-                  {row.right.map(r => {
-                    const k = byRomaji.get(r);
-                    if (!k) return null;
-                    const active = selected.has(r);
-                    return <Cell key={r} kana={k.kana} romaji={k.romaji} active={active} onToggle={() => toggle(r)} />
-                  })}
-                </div>
-              )}
-            </div>
-          ))}
+        <div className="mt-2 flex flex-wrap justify-center gap-2">
+          {set.map(k => {
+            const active = selected.has(k.romaji);
+            return <Cell key={k.romaji} kana={k.kana} romaji={k.romaji} active={active} onToggle={() => toggle(k.romaji)} />
+          })}
         </div>
       </div>
     </div>

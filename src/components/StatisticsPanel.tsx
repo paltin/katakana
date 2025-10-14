@@ -1,4 +1,5 @@
-import { KATAKANA, type Kana } from '../data/katakana';
+import type { Kana } from '../data/katakana';
+import { useCharacterSet } from '../data/useCharacterSet';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -50,9 +51,10 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
+  const FULL = useCharacterSet();
   const pool: Kana[] = (selected.size
-    ? KATAKANA.filter((k) => selected.has(k.romaji))
-    : KATAKANA
+    ? FULL.filter((k) => selected.has(k.romaji))
+    : FULL
   ).slice();
 
   // Count occurrences in the current selection.

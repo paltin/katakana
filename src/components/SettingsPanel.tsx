@@ -46,6 +46,18 @@ export function SettingsPanel({ open, onClose }: Props) {
 
         <div className="space-y-4">
           <label className="grid grid-cols-[1fr_auto] items-center gap-3">
+            <span className="text-sm text-neutral-300">Character set</span>
+            <select
+              value={settings.script}
+              onChange={(e) => update({ script: e.target.value as any })}
+              className="w-36 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-sm"
+            >
+              <option value="katakana">Katakana</option>
+              <option value="hiragana">Hiragana</option>
+              <option value="kanji">Kanji</option>
+            </select>
+          </label>
+          <label className="grid grid-cols-[1fr_auto] items-center gap-3">
             <span className="text-sm text-neutral-300">Character font</span>
             <select
               value={settings.kanaFont}

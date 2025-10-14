@@ -1,14 +1,18 @@
 import type { ReactNode } from 'react';
-import { SettingsProvider } from './context/SettingsContext';
+import { SettingsProvider, useSettings } from './context/SettingsContext';
 import { FilterProvider } from './context/FilterContext';
-import { KATAKANA } from './data/katakana';
+import { useCharacterSet } from './data/useCharacterSet';
+
+function Inner({ children }: { children: ReactNode }) {
+  useSettings(); // ensure context order
+  const set = useCharacterSet();
+  return <FilterProvider allKeys={set.map(k => k.romaji)}>{children}</FilterProvider>;
+}
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <SettingsProvider>
-      <FilterProvider allKeys={KATAKANA.map((k) => k.romaji)}>
-        {children}
-      </FilterProvider>
+      <Inner>{children}</Inner>
     </SettingsProvider>
   );
 }
