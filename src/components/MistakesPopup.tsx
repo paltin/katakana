@@ -31,11 +31,13 @@ export function MistakesPopup({ open, onClose, problems }: Props) {
     // Arm after a short delay to ignore trailing keyup/keydown from the last typed key
     const armT = window.setTimeout(() => { armedRef.current = true; }, 80);
     const handler = (e: KeyboardEvent) => {
-      // Swallow the event completely so it doesn't reach app handlers
       if (!armedRef.current) return; // ignore the key event that triggered popup appearance
-      e.preventDefault();
-      (e as any).stopImmediatePropagation?.();
-      onClose();
+      // Only close on Escape or Enter to avoid disrupting typing
+      if (e.key === 'Escape' || e.key === 'Esc' || e.key === 'Enter') {
+        e.preventDefault();
+        (e as any).stopImmediatePropagation?.();
+        onClose();
+      }
     };
     window.addEventListener('keydown', handler, { capture: true });
     panelRef.current?.focus();
