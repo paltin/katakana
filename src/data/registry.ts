@@ -18,8 +18,9 @@ export function getCharacters(script: ScriptId): Kana[] {
       break;
     case 'kanji':
       {
-        const allow = new Set([...(coreKanjiList as string[]), ...(extraKanjiList as string[])]);
-        set = (kanji as Kana[]).filter(k => allow.has(k.kana));
+        const allowList = [...(coreKanjiList as string[]), ...(extraKanjiList as string[])];
+        const byChar = new Map<string, Kana>((kanji as Kana[]).map(k => [k.kana, k]));
+        set = allowList.map(ch => byChar.get(ch) ?? ({ kana: ch, romaji: ch } as Kana));
       }
       break;
     default:
