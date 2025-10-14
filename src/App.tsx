@@ -12,14 +12,14 @@ import './style.css';
 import { useSpaceHint } from './hooks/useSpaceHint';
 import { useHighlights } from './hooks/useHighlights';
 import { MistakesManager } from './components/MistakesManager';
+import { FabBar } from './components/FabBar';
 
 import { useState } from 'react';
-import { FabBar } from './components/FabBar';
 
 export default function App() {
   return (
     <SettingsProvider>
-      <FilterProvider allKeys={KATAKANA.map(k => k.romaji)}>
+      <FilterProvider allKeys={KATAKANA.map((k) => k.romaji)}>
         <InnerApp />
       </FilterProvider>
     </SettingsProvider>
@@ -44,12 +44,9 @@ function InnerApp() {
   const { hintHeld } = useSpaceHint(overlayOpen, () => markHintUsed());
   const { highlighted, onToggleHighlight } = useHighlights();
 
-  
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-
-  // mistakes flow handled by MistakesManager
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
@@ -78,45 +75,22 @@ function InnerApp() {
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenFilter={() => setFilterOpen(true)}
         />
-        <button
-          aria-label="Shuffle"
-          className="hidden fixed bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
-          onClick={reshuffle} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); e.stopPropagation(); } }} onKeyUp={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); e.stopPropagation(); } }} type="button"
-          title="Shuffle"
-        >
-          <span aria-hidden>🔀</span>
-        </button>
-
-        <button
-          aria-label="Statistics"
-          className="hidden fixed bottom-4 right-52 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
-          onClick={() => setStatsOpen(true)}
-          title="Statistics"
-        >
-          <span aria-hidden>📊</span>
-        </button>
-
-        <button
-          aria-label="Settings"
-          className="hidden fixed bottom-4 right-20 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800"
-          onClick={() => setSettingsOpen(true)}
-          title="Settings"
-        >
-          <span aria-hidden>⚙️</span>
-        </button>
-
-        <button
-          aria-label="Filter"
-          className="hidden fixed bottom-4 right-36 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-2xl shadow transition hover:bg-neutral-800 [font-family:'Noto Serif JP']"
-          onClick={() => setFilterOpen(true)}
-          title="Filter"
-        >
-          <span aria-hidden>ア</span>
-        </button>
 
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-        <StatisticsPanel open={statsOpen} onClose={() => setStatsOpen(false)} selection={selection} problems={problemCounts} highlightedColors={highlighted} onToggleHighlight={onToggleHighlight} />
-        <MistakesManager finished={finished} problems={problemCounts} reshuffle={reshuffle} onOpenChange={setOverlayOpen} />
+        <StatisticsPanel
+          open={statsOpen}
+          onClose={() => setStatsOpen(false)}
+          selection={selection}
+          problems={problemCounts}
+          highlightedColors={highlighted}
+          onToggleHighlight={onToggleHighlight}
+        />
+        <MistakesManager
+          finished={finished}
+          problems={problemCounts}
+          reshuffle={reshuffle}
+          onOpenChange={setOverlayOpen}
+        />
         <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       </div>
     </div>
