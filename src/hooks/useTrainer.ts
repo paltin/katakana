@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import type { Kana } from '../data/katakana';
 import { useCharacterSet } from '../data/useCharacterSet';
+import { getItemKey } from '../data/registry';
 import { requiredLength } from '../utils/romaji';
 import { useSettings } from '../context/SettingsContext';
 import { useFilters } from '../context/FilterContext';
@@ -54,10 +55,9 @@ export function useTrainer(): TrainerReturn {
   const FULL: Kana[] = useCharacterSet();
   const pool: Kana[] = useMemo(() => {
     const base = FULL;
-    // Always respect current selection; default state selects all in FilterProvider
-    const set = base.filter(k => selected.has(k.romaji));
+    const set = base.filter(k => selected.has(getItemKey(settings.script, k)));
     return set;
-  }, [selected, FULL]);
+  }, [selected, FULL, settings.script]);
   const selection: Kana[] = useMemo(() => {
     if (pool.length === 0) return [];
     const n = settings.rows * settings.cols;

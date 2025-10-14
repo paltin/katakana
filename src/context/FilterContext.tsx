@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-const KEY = 'katakana.filters.v1';
+const DEFAULT_KEY = 'katakana.filters.v1';
 
 type Ctx = {
   selected: Set<string>; // romaji keys
@@ -11,7 +11,8 @@ type Ctx = {
 
 const FilterContext = createContext<Ctx | null>(null);
 
-export function FilterProvider({ children, allKeys }: { children: ReactNode; allKeys: string[] }) {
+export function FilterProvider({ children, allKeys, storageKey }: { children: ReactNode; allKeys: string[]; storageKey?: string }) {
+  const KEY = storageKey ?? DEFAULT_KEY;
   const [selected, setSelected] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem(KEY);
@@ -23,9 +24,25 @@ export function FilterProvider({ children, allKeys }: { children: ReactNode; all
     }
   });
 
+  useEffect(() => {
+    // When key or available keys change (e.g., switching script), reload selection
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        const parsed: string[] = JSON.parse(raw);
+        setSelected(new Set(parsed));
+      } else {
+        setSelected(new Set(allKeys));
+      }
+    } catch {
+      setSelected(new Set(allKeys));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [KEY, JSON.stringify(allKeys)]);
+
   const persist = useCallback((s: Set<string>) => {
     try { localStorage.setItem(KEY, JSON.stringify(Array.from(s))); } catch {}
-  }, []);
+  }, [KEY]);
 
   const toggle = useCallback((romaji: string) => {
     setSelected((prev) => {

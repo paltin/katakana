@@ -23,3 +23,7 @@ export function getCharacters(script: ScriptId): Kana[] {
   // Fallback: if selected set is empty, use katakana to keep app usable
   return (set && set.length > 0) ? set : KATAKANA;
 }
+
+export function getItemKey(script: ScriptId, k: Kana): string {
+  return script === 'kanji' ? k.kana : k.romaji;
+}

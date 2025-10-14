@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFilters } from '../context/FilterContext';
 import { useCharacterSet } from '../data/useCharacterSet';
+import { getItemKey } from '../data/registry';
 import { useSettings } from '../context/SettingsContext';
 
 function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
@@ -55,9 +56,16 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
   const { selected, toggle, setAll, clearAll } = useFilters();
   const { settings, update } = useSettings();
   const set = useCharacterSet();
-  const byRomaji = useMemo(() => new Map(set.map(k => [k.romaji, k] as const)), [set]);
+  const byKey = useMemo(() => new Map(set.map(k => [getItemKey(settings.script, k), k] as const)), [set, settings.script]);
   const groups: Group[] = useMemo(() => {
-    if (settings.script === 'kanji') return kanjiGroups(set);
+    if (settings.script === 'kanji') {
+      const g = kanjiGroups(set);
+      // Convert to keys to avoid romaji collisions
+      return g.map(gr => ({ label: gr.label, romaji: gr.romaji.map(r => {
+        const found = set.find(k => k.romaji === r);
+        return found ? getItemKey(settings.script, found) : r;
+      }) }));
+    }
     return kanaGroups();
   }, [settings.script, set]);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -105,7 +113,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
               {g.label && <div className="mb-1 text-center text-sm text-neutral-400">{g.label}</div>}
               <div className="flex flex-wrap justify-center gap-2">
                 {g.romaji.map(r => {
-                  const k = byRomaji.get(r);
+                  const k = byKey.get(r);
                   if (!k) return null;
                   const active = selected.has(r);
                   const subtitle = settings.script === 'kanji' ? (k as any).meaning : undefined;
