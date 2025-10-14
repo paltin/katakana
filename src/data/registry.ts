@@ -1,18 +1,25 @@
 import type { Kana } from './katakana';
 import { KATAKANA } from './katakana';
+import hiragana from './sets/hiragana.json';
+import kanji from './sets/kanji.json';
 
 export type ScriptId = 'katakana' | 'hiragana' | 'kanji';
 
 export function getCharacters(script: ScriptId): Kana[] {
+  let set: Kana[];
   switch (script) {
     case 'katakana':
-      return KATAKANA;
+      set = KATAKANA;
+      break;
     case 'hiragana':
-      return [];
+      set = hiragana as Kana[];
+      break;
     case 'kanji':
-      return [];
+      set = kanji as Kana[];
+      break;
     default:
-      return KATAKANA;
+      set = KATAKANA;
   }
+  // Fallback: if selected set is empty, use katakana to keep app usable
+  return (set && set.length > 0) ? set : KATAKANA;
 }
-
