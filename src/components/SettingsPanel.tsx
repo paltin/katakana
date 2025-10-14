@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSettings } from '../context/SettingsContext';
+import { IconX } from './icons';
 
 type Props = {
   open: boolean;
@@ -39,7 +40,7 @@ export function SettingsPanel({ open, onClose }: Props) {
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-800 hover:bg-neutral-700"
             aria-label="Close settings"
           >
-            ✕
+            <IconX />
           </button>
         </div>
 
@@ -126,3 +127,6 @@ export function SettingsPanel({ open, onClose }: Props) {
     </div>
   );
 }
+
+
+

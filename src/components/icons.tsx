@@ -51,3 +51,10 @@ export function IconShuffle({ size, ...rest }: IconProps) {
   );
 }
 
+export function IconX({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size)} {...rest}>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}

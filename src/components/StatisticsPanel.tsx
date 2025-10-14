@@ -2,6 +2,7 @@ import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { IconX } from './icons';
 import { getMaxDuplicates, setMaxDuplicates, clearStats } from '../stats/store';
 import { getNormalizedWeights } from '../stats/utils';
 
@@ -75,7 +76,7 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-800 hover:bg-neutral-700"
             aria-label="Close statistics"
           >
-            ✕
+            <IconX />
           </button>
         </div>
 
@@ -133,6 +134,9 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
     </div>
   );
 }
+
+
+
 
 
 
