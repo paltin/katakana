@@ -2,6 +2,7 @@ import type { Kana } from './katakana';
 import { KATAKANA } from './katakana';
 import hiragana from './sets/hiragana.json';
 import kanji from './sets/kanji.json';
+import coreKanjiList from './sets/kanji_core_list.json';
 
 export type ScriptId = 'katakana' | 'hiragana' | 'kanji';
 
@@ -15,7 +16,10 @@ export function getCharacters(script: ScriptId): Kana[] {
       set = hiragana as Kana[];
       break;
     case 'kanji':
-      set = kanji as Kana[];
+      {
+        const core = new Set((coreKanjiList as string[]));
+        set = (kanji as Kana[]).filter(k => core.has(k.kana));
+      }
       break;
     default:
       set = KATAKANA;
