@@ -158,12 +158,36 @@ export function useTrainer(): TrainerReturn {
     const val = e.target.value;
     setInput(val);
     if (!current) return;
-    const answer = (settings.script === 'kanji' && (settings as any).kanjiByMeaning && (current as any).meaning)
-      ? String((current as any).meaning).toLowerCase()
-      : current.romaji.toLowerCase();
-    const need = (settings.script === 'kanji' && (settings as any).kanjiByMeaning) ? answer.length : requiredLength(current.romaji);
+    const byMeaning = settings.script === 'kanji' && (settings as any).kanjiByMeaning;
+    if (byMeaning) {
+      const raw = String((current as any).meaning ?? '').toLowerCase();
+      const synonyms = raw.split(/[\/,]/).map(s => s.trim()).filter(Boolean);
+      const typed = val.trim().toLowerCase();
+      // Accept as soon as an exact synonym is typed
+      if (synonyms.includes(typed)) {
+        if (!hadMistake && !usedHint && current) {
+          smoothCorrect(current.romaji);
+        }
+        advance();
+      } else if (typed.length > 0 && typed.length >= Math.max(3, Math.max(...synonyms.map(s => s.length)))) {
+        // if user has typed at least max synonym length and no match, count as mistake
+        setInput('');
+        // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
+        setAttempts((prev) => prev + 1);
+        setProblemCounts((prev) => ({
+          ...prev,
+          [current.romaji]: (prev[current.romaji] ?? 0) + 1,
+        }));
+        setHadMistake(true);
+        bumpMistake(current.romaji);
+        flashErrorTwice();
+      }
+      return;
+    }
+    // Regular romaji mode
+    const need = requiredLength(current.romaji);
     if (val.length >= need) {
-      const expected = answer.slice(0, need).toLowerCase();
+      const expected = current.romaji.slice(0, need).toLowerCase();
       if (val.slice(0, need).toLowerCase() === expected) {
         if (!hadMistake && !usedHint && current) {
           smoothCorrect(current.romaji);
@@ -171,7 +195,6 @@ export function useTrainer(): TrainerReturn {
         advance();
       } else {
         setInput('');
-        // Do not auto-reveal hints on mistakes; hint is shown only via Space key.
         setAttempts((prev) => prev + 1);
         setProblemCounts((prev) => ({
           ...prev,

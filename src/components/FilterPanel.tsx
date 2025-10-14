@@ -42,13 +42,17 @@ function kanaGroups(): Group[] {
   ];
 }
 
-function kanjiGroups(set: { romaji: string }[]): Group[] {
-  const inSet = (r: string) => set.some(k => k.romaji === r);
-  const numbers = ['ichi','ni','san','yon','go','roku','nana','hachi','kyuu','juu'].filter(inSet);
-  const basics = set.map(k => k.romaji).filter(r => !numbers.includes(r));
+function kanjiGroups(set: { romaji: string; kana: string }[]): Group[] {
+  const numberReadings = ['ichi','ni','san','yon','go','roku','nana','hachi','kyuu','juu'];
+  const numbersKeys = Array.from(new Set(
+    set.filter(k => numberReadings.includes(k.romaji)).map(k => k.kana)
+  ));
+  const basicsKeys = Array.from(new Set(
+    set.filter(k => !numberReadings.includes(k.romaji)).map(k => k.kana)
+  ));
   const out: Group[] = [];
-  if (numbers.length) out.push({ label: 'Numbers', romaji: numbers });
-  if (basics.length) out.push({ label: 'Basics', romaji: basics });
+  if (numbersKeys.length) out.push({ label: 'Numbers', romaji: numbersKeys });
+  if (basicsKeys.length) out.push({ label: 'Basics', romaji: basicsKeys });
   return out;
 }
 
@@ -59,12 +63,8 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
   const byKey = useMemo(() => new Map(set.map(k => [getItemKey(settings.script, k), k] as const)), [set, settings.script]);
   const groups: Group[] = useMemo(() => {
     if (settings.script === 'kanji') {
-      const g = kanjiGroups(set);
-      // Convert to keys to avoid romaji collisions
-      return g.map(gr => ({ label: gr.label, romaji: gr.romaji.map(r => {
-        const found = set.find(k => k.romaji === r);
-        return found ? getItemKey(settings.script, found) : r;
-      }) }));
+      // kanji groups already return per-character keys (kana)
+      return kanjiGroups(set as any);
     }
     return kanaGroups();
   }, [settings.script, set]);
