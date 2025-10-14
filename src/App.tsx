@@ -3,10 +3,9 @@ import { HintRow } from './components/HintRow';
 import { AnswerInput } from './components/AnswerInput';
 import { SettingsPanel } from './components/SettingsPanel';
 import { StatisticsPanel } from './components/StatisticsPanel';
-import { SettingsProvider, useSettings } from './context/SettingsContext';
-import { FilterProvider } from './context/FilterContext';
+import { useSettings } from './context/SettingsContext';
 import { FilterPanel } from './components/FilterPanel';
-import { KATAKANA } from './data/katakana';
+import { AppProviders } from './AppProviders';
 import { useTrainer } from './hooks/useTrainer';
 import './style.css';
 import { useSpaceHint } from './hooks/useSpaceHint';
@@ -18,11 +17,9 @@ import { useState } from 'react';
 
 export default function App() {
   return (
-    <SettingsProvider>
-      <FilterProvider allKeys={KATAKANA.map((k) => k.romaji)}>
-        <InnerApp />
-      </FilterProvider>
-    </SettingsProvider>
+    <AppProviders>
+      <InnerApp />
+    </AppProviders>
   );
 }
 
@@ -96,4 +93,3 @@ function InnerApp() {
     </div>
   );
 }
-
