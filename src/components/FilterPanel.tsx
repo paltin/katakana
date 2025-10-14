@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFilters } from '../context/FilterContext';
 import { useCharacterSet } from '../data/useCharacterSet';
+import { useSettings } from '../context/SettingsContext';
 
 function Cell({ kana, romaji, active, onToggle }: { kana: string; romaji: string; active: boolean; onToggle: () => void }) {
   return (
@@ -20,9 +21,42 @@ function Cell({ kana, romaji, active, onToggle }: { kana: string; romaji: string
 
 // byRomaji will be derived from current set
 
+type Group = { label?: string; romaji: string[] };
+
+function kanaGroups(): Group[] {
+  return [
+    { romaji: ['a','i','u','e','o'] },
+    { romaji: ['ka','ki','ku','ke','ko','ga','gi','gu','ge','go'] },
+    { romaji: ['sa','si','su','se','so','za','zi','zu','ze','zo'] },
+    { romaji: ['ta','ti','tu','te','to','da','di','du','de','do'] },
+    { romaji: ['na','ni','nu','ne','no'] },
+    { romaji: ['ha','hi','fu','he','ho','ba','bi','bu','be','bo','pa','pi','pu','pe','po'] },
+    { romaji: ['ma','mi','mu','me','mo'] },
+    { romaji: ['ya','yu','yo'] },
+    { romaji: ['ra','ri','ru','re','ro'] },
+    { romaji: ['wa','wo','n'] },
+  ];
+}
+
+function kanjiGroups(set: { romaji: string }[]): Group[] {
+  const inSet = (r: string) => set.some(k => k.romaji === r);
+  const numbers = ['ichi','ni','san','yon','go','roku','nana','hachi','kyuu','juu'].filter(inSet);
+  const basics = set.map(k => k.romaji).filter(r => !numbers.includes(r));
+  const out: Group[] = [];
+  if (numbers.length) out.push({ label: 'Numbers', romaji: numbers });
+  if (basics.length) out.push({ label: 'Basics', romaji: basics });
+  return out;
+}
+
 export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { selected, toggle, setAll, clearAll } = useFilters();
+  const { settings } = useSettings();
   const set = useCharacterSet();
+  const byRomaji = useMemo(() => new Map(set.map(k => [k.romaji, k] as const)), [set]);
+  const groups: Group[] = useMemo(() => {
+    if (settings.script === 'kanji') return kanjiGroups(set);
+    return kanaGroups();
+  }, [settings.script, set]);
   if (!open) return null;
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -55,12 +89,20 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={onClose}>Close</button>
           </div>
         </div>
-
-        <div className="mt-2 flex flex-wrap justify-center gap-2">
-          {set.map(k => {
-            const active = selected.has(k.romaji);
-            return <Cell key={k.romaji} kana={k.kana} romaji={k.romaji} active={active} onToggle={() => toggle(k.romaji)} />
-          })}
+        <div className="mt-2 space-y-3">
+          {groups.map((g, idx) => (
+            <div key={idx}>
+              {g.label && <div className="mb-1 text-center text-sm text-neutral-400">{g.label}</div>}
+              <div className="flex flex-wrap justify-center gap-2">
+                {g.romaji.map(r => {
+                  const k = byRomaji.get(r);
+                  if (!k) return null;
+                  const active = selected.has(r);
+                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} />
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
