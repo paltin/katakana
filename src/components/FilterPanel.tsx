@@ -57,9 +57,9 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
     if (settings.script === 'kanji') return kanjiGroups(set);
     return kanaGroups();
   }, [settings.script, set]);
-  if (!open) return null;
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (!open) return; // only attach focus behavior when open
     const prev = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
@@ -76,6 +76,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
     window.addEventListener('keydown', onKey, { capture: true });
     return () => { window.removeEventListener('keydown', onKey, { capture: true } as any); prev?.focus?.(); };
   }, [open, onClose]);
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
