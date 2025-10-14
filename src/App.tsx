@@ -43,6 +43,10 @@ function InnerApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  // Ensure answer input regains focus after overlays close
+  const focusAnswer = () => {
+    try { document.querySelector<HTMLInputElement>('input[aria-label="Answer"]')?.focus(); } catch {}
+  };
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
@@ -73,12 +77,12 @@ function InnerApp() {
         />
 
         <Suspense fallback={null}>
-          <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+          <SettingsPanel open={settingsOpen} onClose={() => { setSettingsOpen(false); focusAnswer(); }} />
         </Suspense>
         <Suspense fallback={null}>
           <StatisticsPanel
             open={statsOpen}
-            onClose={() => setStatsOpen(false)}
+            onClose={() => { setStatsOpen(false); focusAnswer(); }}
             selection={selection}
             problems={problemCounts}
             highlightedColors={highlighted}
@@ -89,10 +93,10 @@ function InnerApp() {
           finished={finished}
           problems={problemCounts}
           reshuffle={reshuffle}
-          onOpenChange={setOverlayOpen}
+          onOpenChange={(open) => { setOverlayOpen(open); if (!open) focusAnswer(); }}
         />
         <Suspense fallback={null}>
-          <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
+          <FilterPanel open={filterOpen} onClose={() => { setFilterOpen(false); focusAnswer(); }} />
         </Suspense>
       </div>
     </div>

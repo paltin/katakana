@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useSettings } from '../context/SettingsContext';
 
 type Props = {
@@ -8,11 +9,29 @@ type Props = {
 export function SettingsPanel({ open, onClose }: Props) {
   const { settings, update, reset } = useSettings();
   if (!open) return null;
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); }
+      if (e.key === 'Tab') {
+        const root = panelRef.current; if (!root) return;
+        const focusables = Array.from(root.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(el => !el.hasAttribute('disabled'));
+        if (focusables.length === 0) return;
+        const first = focusables[0]; const last = focusables[focusables.length-1]; const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    window.addEventListener('keydown', onKey, { capture: true });
+    return () => { window.removeEventListener('keydown', onKey, { capture: true } as any); prev?.focus?.(); };
+  }, [open, onClose]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
+      <div ref={panelRef} tabIndex={-1} className="relative w-full max-w-md rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Settings</h2>
           <button

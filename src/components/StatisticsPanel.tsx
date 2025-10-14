@@ -1,9 +1,9 @@
 import { KATAKANA, type Kana } from '../data/katakana';
 import { useFilters } from '../context/FilterContext';
 import { useSettings } from '../context/SettingsContext';
-import { useState, useMemo, useEffect } from 'react';
-import { getScore, getMaxDuplicates, setMaxDuplicates, clearStats } from '../stats/store';
-import { WEIGHT_EPSILON, WEIGHT_GAMMA } from '../config';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { getMaxDuplicates, setMaxDuplicates, clearStats } from '../stats/store';
+import { getNormalizedWeights } from '../stats/utils';
 
 type Props = {
   open: boolean;
@@ -22,12 +22,30 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
   const [showWeights, setShowWeights] = useState(false);
   const [sortByWeight, setSortByWeight] = useState(true);
   const [tick, setTick] = useState(0); // bumps when stats change
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onUpdate = () => setTick((t) => t + 1);
     window.addEventListener('stats:updated', onUpdate);
     return () => window.removeEventListener('stats:updated', onUpdate);
   }, []);
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); }
+      if (e.key === 'Tab') {
+        const root = panelRef.current; if (!root) return;
+        const focusables = Array.from(root.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(el => !el.hasAttribute('disabled'));
+        if (focusables.length === 0) return;
+        const first = focusables[0]; const last = focusables[focusables.length-1]; const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    window.addEventListener('keydown', onKey, { capture: true });
+    return () => { window.removeEventListener('keydown', onKey, { capture: true } as any); prev?.focus?.(); };
+  }, [onClose]);
   // total not used after simplifying cells to show only counts
 
   // Pool of characters considered in practice (selected in Filter).
@@ -42,23 +60,14 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
     counts.set(k.romaji, (counts.get(k.romaji) ?? 0) + 1);
   }
 
-  // Show normalized weights (mean ≈ 1 across pool) using the same transform as selection.
-  const decorated = useMemo(() => {
-    const scores = pool.map((k) => getScore(k.romaji));
-    const raw = scores.map((s) => WEIGHT_EPSILON + Math.pow(1 + s, WEIGHT_GAMMA));
-    const sumRaw = raw.reduce((a, b) => a + b, 0);
-    const scale = sumRaw > 0 ? (pool.length / sumRaw) : 0;
-    return pool.map((k, i) => ({
-      k,
-      weight: raw[i] * scale, // relative weight; ~1.00 baseline
-    }));
-  }, [pool, tick]);
-  const list = useMemo(() => sortByWeight ? [...decorated].sort((a,b)=> b.weight - a.weight) : decorated, [decorated, sortByWeight, tick]);
+  // Show normalized weights with same transform as selection.
+  const decorated = useMemo(() => getNormalizedWeights(pool), [pool, tick]);
 
+  const list = useMemo(() => (sortByWeight ? [...decorated].sort((a, b) => b.weight - a.weight) : decorated), [decorated, sortByWeight, tick]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-5xl rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
+      <div ref={panelRef} tabIndex={-1} className="relative w-full max-w-5xl rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[1.4rem] font-semibold">Statistics (current layout) - {pool.length}</h2>
           <button
@@ -124,6 +133,8 @@ export function StatisticsPanel({ open, onClose, selection, problems, highlighte
     </div>
   );
 }
+
+
 
 
 

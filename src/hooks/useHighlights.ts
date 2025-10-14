@@ -1,7 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function useHighlights() {
-  const [highlighted, setHighlighted] = useState<Record<string, string>>({});
+  const KEY = 'katakana.highlights.v1';
+  const [highlighted, setHighlighted] = useState<Record<string, string>>(() => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return {};
+      const obj = JSON.parse(raw);
+      return obj && typeof obj === 'object' ? (obj as Record<string, string>) : {};
+    } catch {
+      return {};
+    }
+  });
 
   const BRIGHT_COLORS = [
     '#FF3B30', // red
@@ -42,6 +52,9 @@ export function useHighlights() {
     });
   };
 
+  useEffect(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(highlighted)); } catch {}
+  }, [highlighted]);
+
   return { highlighted, onToggleHighlight } as const;
 }
-
