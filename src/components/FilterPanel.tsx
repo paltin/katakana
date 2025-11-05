@@ -10,14 +10,14 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
   return (
     <button
       onClick={onToggle}
-      className={`inline-grid aspect-square w-12 place-items-center rounded-md border text-xl [font-family:'Noto Serif JP'] ${
+      className={`inline-grid aspect-square w-10 place-items-center rounded-md border text-lg [font-family:'Noto Serif JP'] ${
         active ? 'border-neutral-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/40 opacity-50'
       }`}
       title={romaji}
     >
       <div className="grid place-items-center">
         <div>{kana}</div>
-        {subtitle && <div className="mt-0.5 text-[10px] leading-none text-neutral-300 [font-family:Tahoma]">{subtitle}</div>}
+        {subtitle && <div className="mt-0.5 text-[9px] leading-none text-neutral-300 [font-family:Tahoma]">{subtitle}</div>}
       </div>
     </button>
   );
@@ -84,17 +84,17 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div ref={panelRef} tabIndex={-1} className="relative w-full max-w-3xl rounded-t-xl border border-neutral-800 bg-neutral-900 p-4 text-neutral-100 shadow-xl">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Choose characters to practice</h2>
+      <div ref={panelRef} tabIndex={-1} className="relative w-auto max-w-[95vw] max-h-[75vh] overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-900/80 p-3 text-neutral-100 shadow-xl">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-base font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
             {settings.script === 'kanji' && (
               <div className="mr-2 inline-flex items-center gap-1">
-                <button className={`rounded-md border px-2 py-1 text-sm ${page===0?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(0)}>1</button>
-                <button className={`rounded-md border px-2 py-1 text-sm ${page===1?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(1)}>2</button>
+                <button className={`rounded-md border px-2 py-0.5 text-xs ${page===0?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(0)}>1</button>
+                <button className={`rounded-md border px-2 py-0.5 text-xs ${page===1?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(1)}>2</button>
               </div>
             )}
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={() => {
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={() => {
               if (settings.script === 'kanji') {
                 const pages = [coreKanjiList as string[], extraKanjiList as string[]];
                 const keys = (pages[page] || []) as string[];
@@ -103,21 +103,21 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                 setAll(set.map(k => k.romaji));
               }
             }}>All</button>
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={clearAll}>None</button>
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700" onClick={onClose}>Close</button>
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={clearAll}>None</button>
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={onClose}>Close</button>
             {settings.script === 'kanji' && (
-              <label className="ml-2 inline-flex items-center gap-2 text-sm">
+              <label className="ml-2 inline-flex items-center gap-2 text-xs">
                 <input type="checkbox" checked={settings.kanjiByMeaning} onChange={(e)=> update({ kanjiByMeaning: e.target.checked })} />
                 <span className="text-neutral-300">translation</span>
               </label>
             )}
           </div>
         </div>
-        <div className="mt-2 space-y-3">
+        <div className="mt-2 space-y-2">
           {groups.map((g, idx) => (
             <div key={idx}>
-              {g.label && <div className="mb-1 text-center text-sm text-neutral-400">{g.label}</div>}
-              <div className="flex flex-wrap justify-center gap-2">
+              {g.label && <div className="mb-0.5 text-center text-xs text-neutral-400">{g.label}</div>}
+              <div className="flex flex-wrap justify-center gap-1.5">
                 {g.romaji.map(r => {
                   const k = byKey.get(r);
                   if (!k) return null;
