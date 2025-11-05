@@ -74,7 +74,7 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
-        <AnswerInput value={input} onChange={handleInputChange} />
+        <AnswerInput value={input} onChange={handleInputChange} fontRem={settings.charRem} />
         <FabBar
           onShuffle={reshuffle}
           onOpenStats={() => setStatsOpen(true)}
