@@ -84,7 +84,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div ref={panelRef} tabIndex={-1} className="relative w-auto max-w-[95vw] max-h-[75vh] overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-900/80 p-3 text-neutral-100 shadow-xl">
+      <div ref={panelRef} tabIndex={-1} className="relative w-auto max-w-[95vw] max-h-[75vh] overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-900/70 p-3 text-neutral-100 shadow-xl">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-base font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
