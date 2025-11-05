@@ -110,7 +110,7 @@ export function SettingsPanel({ open, onClose }: Props) {
             <input
               type="range"
               min={1}
-              max={6}
+              max={3.8}
               step={0.1}
               value={settings.charRem}
               onChange={(e) => update({ charRem: Number(e.target.value) })}

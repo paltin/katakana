@@ -47,10 +47,16 @@ function InnerApp() {
   const focusAnswer = () => {
     try { document.querySelector<HTMLInputElement>('input[aria-label="Answer"]')?.focus(); } catch {}
   };
+  // Scale top padding with character size so the space from the top “ceiling”
+  // shrinks proportionally as characters get smaller. At max size (3.8rem),
+  // keep the current distance (1.375rem).
+  const MAX_CHAR_REM = 3.8;
+  const BASE_TOP_PAD_REM = 1.375; // previous fixed pt value
+  const topPadRem = BASE_TOP_PAD_REM * (Math.min(settings.charRem, MAX_CHAR_REM) / MAX_CHAR_REM);
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
-      <div className="w-full max-w-7xl mx-auto p-6 pt-[1.375rem] text-center">
+      <div className="w-full max-w-7xl mx-auto p-6 text-center" style={{ paddingTop: `${topPadRem}rem` }}>
         <HintRow
           cols={settings.cols}
           fontRem={settings.charRem}
