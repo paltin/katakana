@@ -32,7 +32,7 @@ export function SettingsPanel({ open, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div ref={panelRef} tabIndex={-1} className="relative w-full max-w-lg rounded-t-xl border border-neutral-800 bg-neutral-900 p-3 text-neutral-100 shadow-xl">
+      <div ref={panelRef} tabIndex={-1} className="relative w-full max-w-2xl max-h-[30vh] overflow-y-auto rounded-t-xl border border-neutral-800 bg-neutral-900 p-3 text-neutral-100 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Settings</h2>
           <button
