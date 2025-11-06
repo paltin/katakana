@@ -7,6 +7,10 @@ import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 
 function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
+  // If a kanji meaning contains exactly two translations separated by '/',
+  // display them on two lines with a slightly smaller font so they fit.
+  const twoLine = subtitle ? subtitle.split('/').map(s => s.trim()).filter(Boolean) : [];
+
   return (
     <button
       onClick={onToggle}
@@ -17,7 +21,16 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
     >
       <div className="grid place-items-center">
         <div>{kana}</div>
-        {subtitle && <div className="mt-0.5 text-[9px] leading-none text-neutral-300 [font-family:Tahoma]">{subtitle}</div>}
+        {subtitle && (
+          twoLine.length === 2 ? (
+            <div className="mt-0.5 text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">
+              <div>{twoLine[0]}</div>
+              <div>{twoLine[1]}</div>
+            </div>
+          ) : (
+            <div className="mt-0.5 text-[9px] leading-none text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
+          )
+        )}
       </div>
     </button>
   );
@@ -122,7 +135,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   const k = byKey.get(r);
                   if (!k) return null;
                   const active = selected.has(r);
-                  const subtitle = settings.script === 'kanji' ? (k as any).meaning : undefined;
+                  const subtitle = settings.script === 'kanji' ? (settings.kanjiByMeaning ? (k as any).meaning : k.romaji) : undefined;
                   return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} />
                 })}
               </div>
@@ -133,4 +146,3 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
     </div>
   );
 }
-
