@@ -7,10 +7,6 @@ import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 
 function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
-  // If a kanji meaning contains exactly two translations separated by '/',
-  // display them on two lines with a slightly smaller font so they fit.
-  const twoLine = subtitle ? subtitle.split('/').map(s => s.trim()).filter(Boolean) : [];
-
   return (
     <button
       onClick={onToggle}
@@ -22,14 +18,7 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
       <div className="w-full text-center">
         <div className="text-[1rem] leading-tight">{kana}</div>
         {subtitle && (
-          twoLine.length === 2 ? (
-            <div className="mt-0.5 px-1 w-full text-[7px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">
-              <div>{twoLine[0]}</div>
-              <div>{twoLine[1]}</div>
-            </div>
-          ) : (
-            <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
-          )
+          <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
         )}
       </div>
     </button>
@@ -135,7 +124,16 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   const k = byKey.get(r);
                   if (!k) return null;
                   const active = selected.has(r);
-                  const subtitle = settings.script === 'kanji' ? (settings.kanjiByMeaning ? (k as any).meaning : k.romaji) : undefined;
+                  let subtitle: string | undefined;
+                  if (settings.script === 'kanji') {
+                    if (settings.kanjiByMeaning) {
+                      const meaning = (k as any).meaning as string | undefined;
+                      const first = meaning ? meaning.split('/')[0]?.trim() : undefined;
+                      subtitle = first && first.length > 0 ? first : k.romaji;
+                    } else {
+                      subtitle = k.romaji;
+                    }
+                  }
                   return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} />
                 })}
               </div>
