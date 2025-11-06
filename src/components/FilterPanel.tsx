@@ -19,16 +19,16 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
       }`}
       title={romaji}
     >
-      <div className="grid place-items-center">
+      <div className="grid place-items-center w-full text-center">
         <div>{kana}</div>
         {subtitle && (
           twoLine.length === 2 ? (
-            <div className="mt-0.5 px-1 text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">
+            <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">
               <div>{twoLine[0]}</div>
               <div>{twoLine[1]}</div>
             </div>
           ) : (
-            <div className="mt-0.5 px-1 text-[9px] leading-none text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
+            <div className="mt-0.5 px-1 w-full text-[9px] leading-none text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
           )
         )}
       </div>
