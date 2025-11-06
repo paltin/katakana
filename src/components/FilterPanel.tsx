@@ -14,7 +14,7 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
   return (
     <button
       onClick={onToggle}
-      className={`inline-flex aspect-square w-10 flex-col items-center justify-center rounded-md border p-1 text-lg [font-family:'Noto Serif JP'] ${
+      className={`inline-grid aspect-square w-10 place-items-center rounded-md border p-1 box-border overflow-hidden text-lg [font-family:'Noto Serif JP'] ${
         active ? 'border-neutral-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/40 opacity-50'
       }`}
       title={romaji}
