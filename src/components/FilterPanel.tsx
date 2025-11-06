@@ -14,21 +14,21 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
   return (
     <button
       onClick={onToggle}
-      className={`inline-grid aspect-square w-10 place-items-center rounded-md border p-1 box-border overflow-hidden text-lg [font-family:'Noto Serif JP'] ${
+      className={`inline-grid aspect-square w-10 place-items-center rounded-md border p-1 box-border overflow-hidden [font-family:'Noto Serif JP'] ${
         active ? 'border-neutral-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/40 opacity-50'
       }`}
       title={romaji}
     >
       <div className="w-full text-center">
-        <div>{kana}</div>
+        <div className="text-[1rem] leading-tight">{kana}</div>
         {subtitle && (
           twoLine.length === 2 ? (
-            <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">
+            <div className="mt-0.5 px-1 w-full text-[7px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">
               <div>{twoLine[0]}</div>
               <div>{twoLine[1]}</div>
             </div>
           ) : (
-            <div className="mt-0.5 px-1 w-full text-[9px] leading-none text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
+            <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
           )
         )}
       </div>
