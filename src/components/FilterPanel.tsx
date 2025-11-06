@@ -6,6 +6,23 @@ import coreKanjiList from '../data/sets/kanji_core_list.json';
 import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 
+// Override meanings for numeric kanji to use digits
+const NUMERIC_KANJI_MAP: Record<string, string> = {
+  '一': '1',
+  '二': '2',
+  '三': '3',
+  '四': '4',
+  '五': '5',
+  '六': '6',
+  '七': '7',
+  '八': '8',
+  '九': '9',
+  '十': '10',
+  '百': '100',
+  '千': '1000',
+  '万': '10000',
+};
+
 function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
   return (
     <button
@@ -127,9 +144,14 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   let subtitle: string | undefined;
                   if (settings.script === 'kanji') {
                     if (settings.kanjiByMeaning) {
-                      const meaning = (k as any).meaning as string | undefined;
-                      const first = meaning ? meaning.split('/')[0]?.trim() : undefined;
-                      subtitle = first && first.length > 0 ? first : k.romaji;
+                      const numeric = NUMERIC_KANJI_MAP[k.kana];
+                      if (numeric) {
+                        subtitle = numeric;
+                      } else {
+                        const meaning = (k as any).meaning as string | undefined;
+                        const first = meaning ? meaning.split('/')[0]?.trim() : undefined;
+                        subtitle = first && first.length > 0 ? first : k.romaji;
+                      }
                     } else {
                       subtitle = k.romaji;
                     }
