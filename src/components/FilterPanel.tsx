@@ -198,7 +198,8 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                       subtitle = k.romaji;
                     }
                   }
-                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} tall={settings.script === 'kanji' || settings.script === 'radicals'} />
+                  // Now that translations are single-word, keep tiles compact
+                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} />
                 })}
               </div>
             </div>
