@@ -72,7 +72,9 @@ export function useTrainer(): TrainerReturn {
 
     // Expected counts proportional to weights
     const expected = rawWeights.map((w) => (sumRaw > 0 ? (n * w) / sumRaw : 0));
-    const caps = scores.map((s) => (s > 0 ? maxDup : 1));
+    // Ensure enough capacity when pool is smaller than N: allow fair duplicates
+    const baseCap = pool.length > 0 ? Math.max(1, Math.min(maxDup, Math.ceil(n / pool.length))) : 1;
+    const caps = scores.map((s) => (s > 0 ? maxDup : baseCap));
 
     // Start with floors under caps
     const counts = expected.map((e, i) => Math.min(caps[i], Math.floor(e)));
@@ -87,20 +89,14 @@ export function useTrainer(): TrainerReturn {
       if (counts[i] < caps[i]) { counts[i]++; used++; }
     }
 
-    // If still short due to caps, fill remaining slots biased by raw weight
+    // If still short due to numerical round-off, fill remaining as round-robin by highest remainder
     while (used < n) {
       const candidates = counts
-        .map((c, i) => ({ i, room: caps[i] - c }))
-        .filter((x) => x.room > 0);
+        .map((c, i) => ({ i, room: caps[i] - c, r: expected[i] - Math.floor(expected[i]) }))
+        .filter((x) => x.room > 0)
+        .sort((a, b) => b.r - a.r);
       if (candidates.length === 0) break;
-      const total = candidates.reduce((a, x) => a + rawWeights[x.i], 0);
-      let r = Math.random() * total;
-      let chosen = candidates[0].i;
-      for (const x of candidates) {
-        r -= rawWeights[x.i];
-        if (r <= 0) { chosen = x.i; break; }
-      }
-      counts[chosen]++; used++;
+      counts[candidates[0].i]++; used++;
     }
 
     const out: Kana[] = [];
@@ -108,10 +104,7 @@ export function useTrainer(): TrainerReturn {
       for (let k = 0; k < counts[i]; k++) out.push(pool[i]);
     }
 
-    // If we could not reach N due to extreme caps/weights, backfill ignoring caps
-    while (out.length < n && pool.length > 0) {
-      out.push(pool[Math.floor(Math.random() * pool.length)]);
-    }
+    // N is guaranteed by baseCap; no biased backfill necessary
 
     shuffleInPlace(out);
     return out;
