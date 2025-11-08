@@ -97,18 +97,31 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
   const set = useCharacterSet();
   const byKey = useMemo(() => new Map(set.map(k => [getItemKey(settings.script, k), k] as const)), [set, settings.script]);
   const [page, setPage] = useState(0);
-  const groups: Group[] = useMemo(() => {
+  // Build pager for kanji and radicals; default to kana groups otherwise
+  const { pageKeys, pageCount } = useMemo(() => {
+    const chunk = (arr: string[], size: number) => {
+      const out: string[][] = [];
+      for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+      return out;
+    };
     if (settings.script === 'kanji') {
       const pages = [coreKanjiList as string[], extraKanjiList as string[]];
       const keys = (pages[page] || []) as string[];
-      return [{ romaji: keys }];
+      return { pageKeys: keys, pageCount: pages.length };
     }
     if (settings.script === 'radicals') {
       const keys = set.map(k => getItemKey('radicals', k));
-      return [{ romaji: keys }];
+      const pages = chunk(keys, 60); // split 214 radicals into ~4 pages
+      return { pageKeys: pages[page] || [], pageCount: pages.length };
+    }
+    return { pageKeys: [], pageCount: 0 };
+  }, [settings.script, page, set]);
+  const groups: Group[] = useMemo(() => {
+    if (settings.script === 'kanji' || settings.script === 'radicals') {
+      return [{ romaji: pageKeys }];
     }
     return kanaGroups();
-  }, [settings.script, page, set]);
+  }, [settings.script, pageKeys]);
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return; // only attach focus behavior when open
@@ -137,19 +150,16 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-base font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
-            {(settings.script === 'kanji') && (
+            {pageCount > 1 && (
               <div className="mr-2 inline-flex items-center gap-1">
-                <button className={`rounded-md border px-2 py-0.5 text-xs ${page===0?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(0)}>1</button>
-                <button className={`rounded-md border px-2 py-0.5 text-xs ${page===1?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(1)}>2</button>
+                {Array.from({ length: pageCount }).map((_, i) => (
+                  <button key={i} className={`rounded-md border px-2 py-0.5 text-xs ${page===i?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(i)}>{i+1}</button>
+                ))}
               </div>
             )}
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={() => {
-              if (settings.script === 'kanji') {
-                const pages = [coreKanjiList as string[], extraKanjiList as string[]];
-                const keys = (pages[page] || []) as string[];
-                setAll(keys);
-              } else if (settings.script === 'radicals') {
-                setAll(set.map(k => getItemKey('radicals', k)));
+              if (settings.script === 'kanji' || settings.script === 'radicals') {
+                setAll(pageKeys);
               } else {
                 setAll(set.map(k => k.romaji));
               }
