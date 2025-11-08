@@ -160,12 +160,20 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
             )}
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={() => {
               if (settings.script === 'kanji' || settings.script === 'radicals') {
-                setAll(pageKeys);
+                // Select only items on current page, keep others as-is
+                for (const key of pageKeys) { if (!selected.has(key)) toggle(key); }
               } else {
                 setAll(set.map(k => k.romaji));
               }
             }}>All</button>
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={clearAll}>None</button>
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={() => {
+              if (settings.script === 'kanji' || settings.script === 'radicals') {
+                // Deselect only items on current page, keep others selected
+                for (const key of pageKeys) { if (selected.has(key)) toggle(key); }
+              } else {
+                clearAll();
+              }
+            }}>None</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={onClose}>Close</button>
             {(settings.script === 'kanji' || settings.script === 'radicals') && (
               <label className="ml-2 inline-flex items-center gap-2 text-xs">
