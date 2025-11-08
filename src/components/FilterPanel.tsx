@@ -6,6 +6,7 @@ import coreKanjiList from '../data/sets/kanji_core_list.json';
 import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 import { kanjiToDigitString } from '../utils/kanjiNumeric';
+import { toSingleWordMeaning } from '../utils/meaningLabel';
 
 // Numeric kanji → digits mapping using Unicode escapes (avoids encoding issues)
 const KANJI_DIGIT_MAP: Record<string, string> = {
@@ -49,11 +50,11 @@ const NUMERIC_KANJI_MAP: Record<string, string> = {
 // Touch legacy numeric map to avoid TS unused-local errors when present
 // (It may contain encoding-corrupted keys on Windows terminals.)
 void (NUMERIC_KANJI_MAP as any);
-function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
+function Cell({ kana, romaji, active, onToggle, subtitle, tall }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string; tall?: boolean }) {
   return (
     <button
       onClick={onToggle}
-      className={`inline-grid aspect-square w-10 place-items-center rounded-md border p-1 box-border overflow-hidden [font-family:'Noto Serif JP'] ${
+      className={`inline-grid w-10 ${tall ? 'h-14' : 'aspect-square'} place-items-center rounded-md border p-1 box-border overflow-hidden [font-family:'Noto Serif JP'] ${
         active ? 'border-neutral-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/40 opacity-50'
       }`}
       title={romaji}
@@ -61,7 +62,7 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
       <div className="w-full text-center">
         <div className="text-[1rem] leading-tight">{kana}</div>
         {subtitle && (
-          <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
+          <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words whitespace-normal">{subtitle}</div>
         )}
       </div>
     </button>
@@ -97,14 +98,31 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
   const set = useCharacterSet();
   const byKey = useMemo(() => new Map(set.map(k => [getItemKey(settings.script, k), k] as const)), [set, settings.script]);
   const [page, setPage] = useState(0);
-  const groups: Group[] = useMemo(() => {
+  // Build pager for kanji and radicals; default to kana groups otherwise
+  const { pageKeys, pageCount } = useMemo(() => {
+    const chunk = (arr: string[], size: number) => {
+      const out: string[][] = [];
+      for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+      return out;
+    };
     if (settings.script === 'kanji') {
       const pages = [coreKanjiList as string[], extraKanjiList as string[]];
       const keys = (pages[page] || []) as string[];
-      return [{ romaji: keys }];
+      return { pageKeys: keys, pageCount: pages.length };
+    }
+    if (settings.script === 'radicals') {
+      const keys = set.map(k => getItemKey('radicals', k));
+      const pages = chunk(keys, 60); // split 214 radicals into ~4 pages
+      return { pageKeys: pages[page] || [], pageCount: pages.length };
+    }
+    return { pageKeys: [], pageCount: 0 };
+  }, [settings.script, page, set]);
+  const groups: Group[] = useMemo(() => {
+    if (settings.script === 'kanji' || settings.script === 'radicals') {
+      return [{ romaji: pageKeys }];
     }
     return kanaGroups();
-  }, [settings.script, page]);
+  }, [settings.script, pageKeys]);
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return; // only attach focus behavior when open
@@ -133,24 +151,31 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-base font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
-            {settings.script === 'kanji' && (
+            {pageCount > 1 && (
               <div className="mr-2 inline-flex items-center gap-1">
-                <button className={`rounded-md border px-2 py-0.5 text-xs ${page===0?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(0)}>1</button>
-                <button className={`rounded-md border px-2 py-0.5 text-xs ${page===1?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(1)}>2</button>
+                {Array.from({ length: pageCount }).map((_, i) => (
+                  <button key={i} className={`rounded-md border px-2 py-0.5 text-xs ${page===i?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(i)}>{i+1}</button>
+                ))}
               </div>
             )}
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={() => {
-              if (settings.script === 'kanji') {
-                const pages = [coreKanjiList as string[], extraKanjiList as string[]];
-                const keys = (pages[page] || []) as string[];
-                setAll(keys);
+              if (settings.script === 'kanji' || settings.script === 'radicals') {
+                // Select only items on current page, keep others as-is
+                for (const key of pageKeys) { if (!selected.has(key)) toggle(key); }
               } else {
                 setAll(set.map(k => k.romaji));
               }
             }}>All</button>
-            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={clearAll}>None</button>
+            <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={() => {
+              if (settings.script === 'kanji' || settings.script === 'radicals') {
+                // Deselect only items on current page, keep others selected
+                for (const key of pageKeys) { if (selected.has(key)) toggle(key); }
+              } else {
+                clearAll();
+              }
+            }}>None</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={onClose}>Close</button>
-            {settings.script === 'kanji' && (
+            {(settings.script === 'kanji' || settings.script === 'radicals') && (
               <label className="ml-2 inline-flex items-center gap-2 text-xs">
                 <input type="checkbox" checked={settings.kanjiByMeaning} onChange={(e)=> update({ kanjiByMeaning: e.target.checked })} />
                 <span className="text-neutral-300">translation</span>
@@ -168,20 +193,20 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   if (!k) return null;
                   const active = selected.has(r);
                   let subtitle: string | undefined;
-                  if (settings.script === 'kanji') {
+                  if (settings.script === 'kanji' || settings.script === 'radicals') {
                     if (settings.kanjiByMeaning) {
                       const numeric = kanjiToDigitString(k.kana);
-                      if (numeric) {
-                        subtitle = numeric;
-                      } else {
+                      if (numeric) { subtitle = numeric; }
+                      else {
                         const meaning = (k as any).meaning as string | undefined;
-                        const first = meaning ? meaning.split('/')[0]?.trim() : undefined;
-                        subtitle = first && first.length > 0 ? first : k.romaji;
+                        const label = meaning ? toSingleWordMeaning(meaning) : undefined;
+                        subtitle = label && label.length > 0 ? label : k.romaji;
                       }
                     } else {
                       subtitle = k.romaji;
                     }
                   }
+                  // Now that translations are single-word, keep tiles compact
                   return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} />
                 })}
               </div>

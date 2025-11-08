@@ -9,6 +9,7 @@ import { FLASH_INTERVAL_MS, WEIGHT_GAMMA, WEIGHT_EPSILON } from '../config';
 // import { pickRandomFill } from '../utils/random';
 import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
 import { withNumericSynonym } from '../utils/kanjiNumeric';
+import { withSingleWordSynonym } from '../utils/meaningLabel';
 import { shuffleInPlace } from '../utils/random';
 
 /**
@@ -159,12 +160,14 @@ export function useTrainer(): TrainerReturn {
     const val = e.target.value;
     setInput(val);
     if (!current) return;
-    const byMeaning = settings.script === 'kanji' && (settings as any).kanjiByMeaning;
+    const byMeaning = (settings.script === 'kanji' || settings.script === 'radicals') && (settings as any).kanjiByMeaning;
     if (byMeaning) {
       const raw = String((current as any).meaning ?? '').toLowerCase();
-      let synonyms = raw.split(/[\/,]/).map(s => s.trim()).filter(Boolean);
+      let synonyms = raw.split(/[\/,]/).map(s => s.trim().toLowerCase()).filter(Boolean);
       // Allow numeric kanji to be answered with digits
       synonyms = withNumericSynonym(synonyms, (current as any).kana);
+      // Add single-word synonym to avoid needing spaces
+      synonyms = withSingleWordSynonym(synonyms, raw);
       const typed = val.trim().toLowerCase();
       // Accept as soon as an exact synonym is typed
       if (synonyms.includes(typed)) {
