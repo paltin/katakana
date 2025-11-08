@@ -5,6 +5,29 @@ import { getItemKey } from '../data/registry';
 import coreKanjiList from '../data/sets/kanji_core_list.json';
 import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
+import { kanjiToDigitString } from '../utils/kanjiNumeric';
+
+// Numeric kanji → digits mapping using Unicode escapes (avoids encoding issues)
+const KANJI_DIGIT_MAP: Record<string, string> = {
+  '\u4E00': '1',   // 一
+  '\u4E8C': '2',   // 二
+  '\u4E09': '3',   // 三
+  '\u56DB': '4',   // 四
+  '\u4E94': '5',   // 五
+  '\u516D': '6',   // 六
+  '\u4E03': '7',   // 七
+  '\u516B': '8',   // 八
+  '\u4E5D': '9',   // 九
+  '\u5341': '10',  // 十
+  '\u767E': '100', // 百
+  '\u5343': '1000',// 千
+  '\u4E07': '10000', // 万
+};
+
+function getNumericKanjiValue(kanji: string | undefined): string | undefined {
+  if (!kanji) return undefined;
+  return KANJI_DIGIT_MAP[kanji];
+}
 
 // Override meanings for numeric kanji to use digits
 const NUMERIC_KANJI_MAP: Record<string, string> = {
@@ -23,6 +46,9 @@ const NUMERIC_KANJI_MAP: Record<string, string> = {
   '万': '10000',
 };
 
+// Touch legacy numeric map to avoid TS unused-local errors when present
+// (It may contain encoding-corrupted keys on Windows terminals.)
+void (NUMERIC_KANJI_MAP as any);
 function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
   return (
     <button
@@ -144,7 +170,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   let subtitle: string | undefined;
                   if (settings.script === 'kanji') {
                     if (settings.kanjiByMeaning) {
-                      const numeric = NUMERIC_KANJI_MAP[k.kana];
+                      const numeric = kanjiToDigitString(k.kana);
                       if (numeric) {
                         subtitle = numeric;
                       } else {

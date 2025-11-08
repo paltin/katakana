@@ -12,6 +12,7 @@ import './style.css';
 import { useSpaceHint } from './hooks/useSpaceHint';
 import { useHighlights } from './hooks/useHighlights';
 import { MistakesManager } from './components/MistakesManager';
+import { kanjiToDigitString } from './utils/kanjiNumeric';
 import { FabBar } from './components/FabBar';
 
 export default function App() {
@@ -61,7 +62,9 @@ function InnerApp() {
           cols={settings.cols}
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
-          text={current ? ((settings.script === 'kanji' && (settings as any).kanjiByMeaning) ? String((current as any).meaning ?? '') : current.romaji) : ''}
+          text={current ? ((settings.script === 'kanji' && (settings as any).kanjiByMeaning)
+            ? (kanjiToDigitString((current as any).kana) ?? String((current as any).meaning ?? ''))
+            : current.romaji) : ''}
           show={!!(hintHeld && current)}
         />
         <KanaGrid
