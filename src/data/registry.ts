@@ -4,9 +4,10 @@ import hiragana from './sets/hiragana.json';
 import kanji from './sets/kanji.json';
 import coreKanjiList from './sets/kanji_core_list.json';
 import extraKanjiList from './sets/kanji_extra_list.json';
+import radicalsRaw from './sets/radicals.json';
 import extraKanjiData from './sets/kanji_extra_data.json';
 
-export type ScriptId = 'katakana' | 'hiragana' | 'kanji';
+export type ScriptId = 'katakana' | 'hiragana' | 'kanji' | 'radicals';
 
 export function getCharacters(script: ScriptId): Kana[] {
   let set: Kana[];
@@ -32,6 +33,17 @@ export function getCharacters(script: ScriptId): Kana[] {
         });
       }
       break;
+    case 'radicals':
+      {
+        // Map radicals dataset to Kana shape (kana=radical, romaji=pinyin)
+        const arr = (radicalsRaw as any[]).map((r) => ({
+          kana: String(r.radical),
+          romaji: String(r.pinyin),
+          meaning: String(r.meaning),
+        })) as Kana[];
+        set = arr;
+      }
+      break;
     default:
       set = KATAKANA;
   }
@@ -40,5 +52,5 @@ export function getCharacters(script: ScriptId): Kana[] {
 }
 
 export function getItemKey(script: ScriptId, k: Kana): string {
-  return script === 'kanji' ? k.kana : k.romaji;
+  return (script === 'kanji' || script === 'radicals') ? k.kana : k.romaji;
 }

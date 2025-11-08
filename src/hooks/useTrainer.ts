@@ -159,7 +159,7 @@ export function useTrainer(): TrainerReturn {
     const val = e.target.value;
     setInput(val);
     if (!current) return;
-    const byMeaning = settings.script === 'kanji' && (settings as any).kanjiByMeaning;
+    const byMeaning = (settings.script === 'kanji' || settings.script === 'radicals') && (settings as any).kanjiByMeaning;
     if (byMeaning) {
       const raw = String((current as any).meaning ?? '').toLowerCase();
       let synonyms = raw.split(/[\/,]/).map(s => s.trim()).filter(Boolean);

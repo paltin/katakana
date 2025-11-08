@@ -56,6 +56,7 @@ export function SettingsPanel({ open, onClose }: Props) {
                 <option value="katakana">Katakana</option>
                 <option value="hiragana">Hiragana</option>
                 <option value="kanji">Kanji</option>
+                <option value="radicals">Radicals</option>
               </select>
             </label>
             <label className="flex items-center gap-2">

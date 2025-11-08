@@ -103,8 +103,12 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
       const keys = (pages[page] || []) as string[];
       return [{ romaji: keys }];
     }
+    if (settings.script === 'radicals') {
+      const keys = set.map(k => getItemKey('radicals', k));
+      return [{ romaji: keys }];
+    }
     return kanaGroups();
-  }, [settings.script, page]);
+  }, [settings.script, page, set]);
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return; // only attach focus behavior when open
@@ -133,7 +137,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-base font-semibold">Choose characters to practice</h2>
           <div className="flex gap-2">
-            {settings.script === 'kanji' && (
+            {(settings.script === 'kanji') && (
               <div className="mr-2 inline-flex items-center gap-1">
                 <button className={`rounded-md border px-2 py-0.5 text-xs ${page===0?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(0)}>1</button>
                 <button className={`rounded-md border px-2 py-0.5 text-xs ${page===1?'border-neutral-500 bg-neutral-800':'border-neutral-700 bg-neutral-900 hover:bg-neutral-800'}`} onClick={()=>setPage(1)}>2</button>
@@ -144,13 +148,15 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                 const pages = [coreKanjiList as string[], extraKanjiList as string[]];
                 const keys = (pages[page] || []) as string[];
                 setAll(keys);
+              } else if (settings.script === 'radicals') {
+                setAll(set.map(k => getItemKey('radicals', k)));
               } else {
                 setAll(set.map(k => k.romaji));
               }
             }}>All</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={clearAll}>None</button>
             <button className="rounded-md border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700" onClick={onClose}>Close</button>
-            {settings.script === 'kanji' && (
+            {(settings.script === 'kanji' || settings.script === 'radicals') && (
               <label className="ml-2 inline-flex items-center gap-2 text-xs">
                 <input type="checkbox" checked={settings.kanjiByMeaning} onChange={(e)=> update({ kanjiByMeaning: e.target.checked })} />
                 <span className="text-neutral-300">translation</span>
@@ -168,7 +174,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   if (!k) return null;
                   const active = selected.has(r);
                   let subtitle: string | undefined;
-                  if (settings.script === 'kanji') {
+                  if (settings.script === 'kanji' || settings.script === 'radicals') {
                     if (settings.kanjiByMeaning) {
                       const numeric = kanjiToDigitString(k.kana);
                       if (numeric) {
