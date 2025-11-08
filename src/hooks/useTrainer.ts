@@ -106,8 +106,27 @@ export function useTrainer(): TrainerReturn {
 
     // N is guaranteed by baseCap; no biased backfill necessary
 
+    // Shuffle, then de-clump duplicates so identical items are spaced out.
     shuffleInPlace(out);
-    return out;
+    const arranged: Kana[] = [];
+    const remaining = new Map<string, { item: Kana; count: number }>();
+    for (const k of out) {
+      const r = remaining.get(k.romaji);
+      if (r) r.count += 1; else remaining.set(k.romaji, { item: k, count: 1 });
+    }
+    let prevKey = '';
+    while (arranged.length < out.length) {
+      // Pick the key with highest remaining count that is not equal to prevKey when possible
+      const choices = Array.from(remaining.values()).filter(x => x.count > 0);
+      if (choices.length === 0) break;
+      choices.sort((a, b) => b.count - a.count);
+      let pick = choices.find(c => getItemKey(settings.script, c.item) !== prevKey);
+      if (!pick) pick = choices[0];
+      arranged.push(pick.item);
+      pick.count -= 1;
+      prevKey = getItemKey(settings.script, pick.item);
+    }
+    return arranged;
   }, [seed, settings.rows, settings.cols, pool]);
   const current = selection[currentIndex];
   const total = selection.length;
