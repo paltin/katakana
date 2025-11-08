@@ -6,6 +6,7 @@ import coreKanjiList from '../data/sets/kanji_core_list.json';
 import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 import { kanjiToDigitString } from '../utils/kanjiNumeric';
+import { toSingleWordMeaning } from '../utils/meaningLabel';
 
 // Numeric kanji → digits mapping using Unicode escapes (avoids encoding issues)
 const KANJI_DIGIT_MAP: Record<string, string> = {
@@ -187,12 +188,11 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                   if (settings.script === 'kanji' || settings.script === 'radicals') {
                     if (settings.kanjiByMeaning) {
                       const numeric = kanjiToDigitString(k.kana);
-                      if (numeric) {
-                        subtitle = numeric;
-                      } else {
+                      if (numeric) { subtitle = numeric; }
+                      else {
                         const meaning = (k as any).meaning as string | undefined;
-                        const first = meaning ? meaning.split('/')[0]?.trim() : undefined;
-                        subtitle = first && first.length > 0 ? first : k.romaji;
+                        const label = meaning ? toSingleWordMeaning(meaning) : undefined;
+                        subtitle = label && label.length > 0 ? label : k.romaji;
                       }
                     } else {
                       subtitle = k.romaji;
