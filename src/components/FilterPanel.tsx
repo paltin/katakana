@@ -49,11 +49,11 @@ const NUMERIC_KANJI_MAP: Record<string, string> = {
 // Touch legacy numeric map to avoid TS unused-local errors when present
 // (It may contain encoding-corrupted keys on Windows terminals.)
 void (NUMERIC_KANJI_MAP as any);
-function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string }) {
+function Cell({ kana, romaji, active, onToggle, subtitle, tall }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string; tall?: boolean }) {
   return (
     <button
       onClick={onToggle}
-      className={`inline-grid aspect-square w-10 place-items-center rounded-md border p-1 box-border overflow-hidden [font-family:'Noto Serif JP'] ${
+      className={`inline-grid w-10 ${tall ? 'h-14' : 'aspect-square'} place-items-center rounded-md border p-1 box-border overflow-hidden [font-family:'Noto Serif JP'] ${
         active ? 'border-neutral-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/40 opacity-50'
       }`}
       title={romaji}
@@ -61,7 +61,7 @@ function Cell({ kana, romaji, active, onToggle, subtitle }: { kana: string; roma
       <div className="w-full text-center">
         <div className="text-[1rem] leading-tight">{kana}</div>
         {subtitle && (
-          <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words">{subtitle}</div>
+          <div className="mt-0.5 px-1 w-full text-[8px] leading-tight text-neutral-300 [font-family:Tahoma] text-center break-words whitespace-normal">{subtitle}</div>
         )}
       </div>
     </button>
@@ -188,7 +188,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                       subtitle = k.romaji;
                     }
                   }
-                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} />
+                  return <Cell key={r} kana={k.kana} romaji={r} active={active} onToggle={() => toggle(r)} subtitle={subtitle} tall={settings.script === 'kanji' || settings.script === 'radicals'} />
                 })}
               </div>
             </div>
