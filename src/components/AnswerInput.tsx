@@ -57,7 +57,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
           autoCapitalize="none"
           // @ts-expect-error - not in TS DOM yet in all libs
           inputMode={'latin'}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); } }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.code === 'Enter') { e.preventDefault(); return; } if (e.key === ' ' || e.code === 'Space' || (e as any).key === 'Spacebar') { e.preventDefault(); } }}
           onInput={(e) => {
             const t = e.currentTarget as HTMLDivElement;
             const v = (t.textContent ?? '').trimStart();
@@ -81,6 +81,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
         inputMode={(readOnly ? 'none' : 'latin') as any}
         name="trainer-input"
         enterKeyHint="done"
+        onKeyDown={(e) => { if (e.key === ' ' || e.code === 'Space' || (e as any).key === 'Spacebar') { e.preventDefault(); } }}
         value={value}
         onChange={onChange}
         />

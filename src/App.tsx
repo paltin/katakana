@@ -41,7 +41,7 @@ function InnerApp() {
   } = useTrainer();
   const { settings } = useSettings();
   const [overlayOpen, setOverlayOpen] = useState(false);
-  const { hintHeld } = useSpaceHint(overlayOpen, () => markHintUsed());
+  const { hintActive, disableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
   const { highlighted, onToggleHighlight } = useHighlights();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
