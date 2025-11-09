@@ -15,6 +15,7 @@ import { MistakesManager } from './components/MistakesManager';
 import { kanjiToDigitString } from './utils/kanjiNumeric';
 import { toSingleWordMeaning } from './utils/meaningLabel';
 import { localizedMeaningFromKana } from './utils/i18n';
+import { romajiToCyrillicVariants } from './utils/cyrillicKana';
 import { FabBar } from './components/FabBar';
 
 export default function App() {
@@ -64,9 +65,18 @@ function InnerApp() {
           cols={settings.cols}
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
-          text={current ? (((settings.script === 'kanji' || settings.script === 'radicals') && (settings as any).kanjiByMeaning)
-            ? (kanjiToDigitString((current as any).kana) ?? localizedMeaningFromKana(current as any, settings.lang))
-            : current.romaji) : ''}
+          text={(() => {
+            if (!current) return '';
+            const isTrans = (settings.script === 'kanji' || settings.script === 'radicals') && (settings as any).kanjiByMeaning;
+            if (isTrans) {
+              return kanjiToDigitString((current as any).kana) ?? localizedMeaningFromKana(current as any, settings.lang);
+            }
+            if ((settings.script === 'hiragana' || settings.script === 'katakana') && (settings as any).lang === 'ru') {
+              const v = romajiToCyrillicVariants(current.romaji);
+              return v[0] ?? current.romaji;
+            }
+            return current.romaji;
+          })()}
           show={!!(hintHeld && current)}
         />
         <KanaGrid
