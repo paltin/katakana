@@ -52,6 +52,21 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, res
     }, 0);
     return () => clearTimeout(t);
   }, [autoFocus, readOnly, isAndroid]);
+  // Force-clear CE on trainer advance tick (Android) to avoid residual IME commits
+  useEffect(() => {
+    if (!isAndroid || readOnly) return;
+    const el = ceRef.current; if (!el) return;
+    el.textContent = value;
+    try {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection?.();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+      el.focus();
+    } catch {}
+  }, [resetSeq, isAndroid, readOnly, value]);
   return (
     <div className="mt-4 flex justify-center">
       {isAndroid && !readOnly ? (
@@ -102,9 +117,3 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, res
   );
 }
 
-
-  // Force-clear CE on trainer advance tick to avoid residual IME commits
-  useEffect(() => {
-    if (!isAndroid || readOnly) return; const el = ceRef.current; if (!el) return;
-    el.textContent = value; try { el.focus(); } catch {}
-  }, [resetSeq]);
