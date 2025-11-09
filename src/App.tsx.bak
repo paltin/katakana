@@ -50,9 +50,6 @@ function InnerApp() {
   const focusAnswer = () => {
     try { document.querySelector<HTMLInputElement>('input[aria-label="Answer"]')?.focus(); } catch {}
   };
-  const blurActive = () => {
-    try { (document.activeElement as HTMLElement | null)?.blur?.(); } catch {}
-  };
   // Scale top padding with character size so the space from the top “ceiling”
   // shrinks proportionally as characters get smaller. At max size (3.8rem),
   // keep the current distance (1.375rem).
@@ -94,9 +91,9 @@ function InnerApp() {
         <AnswerInput value={input} onChange={handleInputChange} fontRem={settings.charRem} autoFocus={false} />
         <FabBar
           onShuffle={reshuffle}
-          onOpenStats={() => { blurActive(); setStatsOpen(true); }}
-          onOpenSettings={() => { blurActive(); setSettingsOpen(true); }}
-          onOpenFilter={() => { blurActive(); setFilterOpen(true); }}
+          onOpenStats={() => setStatsOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenFilter={() => setFilterOpen(true)}
         />
 
         <Suspense fallback={null}>

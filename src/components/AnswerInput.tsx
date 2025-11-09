@@ -4,9 +4,10 @@ type Props = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fontRem: number;
+  autoFocus?: boolean;
 };
 
-export function AnswerInput({ value, onChange, fontRem }: Props) {
+export function AnswerInput({ value, onChange, fontRem, autoFocus }: Props) {
   const MAX_CHAR_REM = 3.8;
   const scale = Math.min(fontRem, MAX_CHAR_REM) / MAX_CHAR_REM;
   const base = {
@@ -29,7 +30,7 @@ export function AnswerInput({ value, onChange, fontRem }: Props) {
         aria-label="Answer"
         className="rounded-md border border-neutral-800 bg-neutral-900 leading-tight text-neutral-400 [font-family:Tahoma] focus:outline-none focus:ring-2 focus:ring-neutral-700"
         style={style}
-        autoFocus
+        autoFocus={!!autoFocus}
         value={value}
         onChange={onChange}
       />
