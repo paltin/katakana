@@ -5,8 +5,9 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fontRem: number;
   autoFocus?: boolean;
-  readOnly?: boolean;\r\n  resetSeq?: number;\r\n};
-
+  readOnly?: boolean;
+  resetSeq?: number;
+};
 export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, resetSeq }: Props) {
   const MAX_CHAR_REM = 3.8;
   const scale = Math.min(fontRem, MAX_CHAR_REM) / MAX_CHAR_REM;
