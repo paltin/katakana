@@ -16,6 +16,7 @@ import { kanjiToDigitString } from './utils/kanjiNumeric';
 import { localizedMeaningFromKana } from './utils/i18n';
 import { romajiToCyrillicVariants } from './utils/cyrillicKana';
 import { FabBar } from './components/FabBar';
+import { APP_VERSION } from './version';
 
 export default function App() {
   return (
@@ -121,7 +122,9 @@ function InnerApp() {
         <Suspense fallback={null}>
           <FilterPanel open={filterOpen} onClose={() => { setFilterOpen(false); focusAnswer(); }} />
         </Suspense>
+        <div className="fixed left-2 bottom-2 text-[10px] text-neutral-500 select-none">{APP_VERSION}</div>
       </div>
     </div>
   );
 }
+ 
