@@ -81,7 +81,7 @@ function InnerApp() {
             }
             return current.romaji;
           })()}
-          show={!!(hintHeld && current)}
+          show={!!(hintActive && current)}
         />
         <KanaGrid
           items={selection}
@@ -93,7 +93,7 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
-        <AnswerInput key={currentIndex} value={input} onChange={handleInputChange} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} />
+        <AnswerInput key={currentIndex} value={input} onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} />
         <FabBar
           onShuffle={reshuffle}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}
