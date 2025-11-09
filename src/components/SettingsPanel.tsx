@@ -95,26 +95,40 @@ export function SettingsPanel({ open, onClose }: Props) {
                 className="h-5 w-9 cursor-pointer rounded-md border border-neutral-700 bg-neutral-800 p-0"
               />
             </label>
-            <label className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <span className="text-xs text-neutral-300">Rows</span>
-              <input
-                type="number"
-                min={1}
-                value={settings.rows}
-                onChange={(e) => update({ rows: Number(e.target.value) })}
-                className="w-16 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-0 text-xs"
-              />
-            </label>
-            <label className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-1">
+                <button type="button" aria-label="Decrease rows" className="h-5 w-5 rounded-md border border-neutral-700 bg-neutral-800 text-xs hover:bg-neutral-700"
+                  onClick={() => update({ rows: Math.max(1, settings.rows - 1) })}>−</button>
+                <input
+                  type="text"
+                  readOnly
+                  inputMode="none"
+                  value={settings.rows}
+                  className="w-12 text-center rounded-md border border-neutral-700 bg-neutral-800 px-2 py-0 text-xs select-none"
+                  onKeyDown={(e)=>{ if(e.key==='ArrowUp') { e.preventDefault(); update({ rows: settings.rows+1}); } if(e.key==='ArrowDown'){ e.preventDefault(); update({ rows: Math.max(1, settings.rows-1)}); } }}
+                />
+                <button type="button" aria-label="Increase rows" className="h-5 w-5 rounded-md border border-neutral-700 bg-neutral-800 text-xs hover:bg-neutral-700"
+                  onClick={() => update({ rows: settings.rows + 1 })}>＋</button>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
               <span className="text-xs text-neutral-300">Columns</span>
-              <input
-                type="number"
-                min={1}
-                value={settings.cols}
-                onChange={(e) => update({ cols: Number(e.target.value) })}
-                className="w-16 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-0 text-xs"
-              />
-            </label>
+              <div className="inline-flex items-center gap-1">
+                <button type="button" aria-label="Decrease columns" className="h-5 w-5 rounded-md border border-neutral-700 bg-neutral-800 text-xs hover:bg-neutral-700"
+                  onClick={() => update({ cols: Math.max(1, settings.cols - 1) })}>−</button>
+                <input
+                  type="text"
+                  readOnly
+                  inputMode="none"
+                  value={settings.cols}
+                  className="w-12 text-center rounded-md border border-neutral-700 bg-neutral-800 px-2 py-0 text-xs select-none"
+                  onKeyDown={(e)=>{ if(e.key==='ArrowUp') { e.preventDefault(); update({ cols: settings.cols+1}); } if(e.key==='ArrowDown'){ e.preventDefault(); update({ cols: Math.max(1, settings.cols-1)}); } }}
+                />
+                <button type="button" aria-label="Increase columns" className="h-5 w-5 rounded-md border border-neutral-700 bg-neutral-800 text-xs hover:bg-neutral-700"
+                  onClick={() => update({ cols: settings.cols + 1 })}>＋</button>
+              </div>
+            </div>
           </div>
 
           <label className="flex items-center gap-2">
