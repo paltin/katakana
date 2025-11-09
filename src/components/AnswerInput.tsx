@@ -33,7 +33,14 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
         style={style}
         autoFocus={!!autoFocus}
         readOnly={!!readOnly}
-        inputMode={readOnly ? 'none' as any : undefined}
+        // Suppress Chrome/Gboard autofill suggestion bar on Android
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        autoCapitalize="none"
+        inputMode={(readOnly ? 'none' : 'latin') as any}
+        name="trainer-input"
+        enterKeyHint="done"
         value={value}
         onChange={onChange}
       />
