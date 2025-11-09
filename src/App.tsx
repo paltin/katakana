@@ -93,7 +93,7 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
-        <AnswerInput value={input} onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} />
+        <AnswerInput value={input} onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} resetSeq={currentIndex} />
         <FabBar
           onShuffle={reshuffle}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}

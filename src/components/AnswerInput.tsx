@@ -5,10 +5,9 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fontRem: number;
   autoFocus?: boolean;
-  readOnly?: boolean;
-};
+  readOnly?: boolean;\r\n  resetSeq?: number;\r\n};
 
-export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: Props) {
+export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, resetSeq }: Props) {
   const MAX_CHAR_REM = 3.8;
   const scale = Math.min(fontRem, MAX_CHAR_REM) / MAX_CHAR_REM;
   const base = {
@@ -102,3 +101,9 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
   );
 }
 
+
+  // Force-clear CE on trainer advance tick to avoid residual IME commits
+  useEffect(() => {
+    if (!isAndroid || readOnly) return; const el = ceRef.current; if (!el) return;
+    el.textContent = value; try { el.focus(); } catch {}
+  }, [resetSeq]);
