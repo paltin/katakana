@@ -27,6 +27,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
   const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
   const ceRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fireSpaceHint = () => { try { const evt = new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }); window.dispatchEvent(evt); } catch {} };
   // Keep contentEditable in sync when we render it
   useEffect(() => {
     if (!isAndroid || readOnly) return;
@@ -57,7 +58,8 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
           autoCapitalize="none"
           // @ts-expect-error - not in TS DOM yet in all libs
           inputMode={'latin'}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.code === 'Enter') { e.preventDefault(); return; } if (e.key === ' ' || e.code === 'Space' || (e as any).key === 'Spacebar') { e.preventDefault(); } }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.code === 'Enter') { e.preventDefault(); return; } if (e.key === ' ' || e.code === 'Space' || (e as any).key === 'Spacebar') { e.preventDefault(); fireSpaceHint(); } }}
+          onBeforeInput={(e: any) => { try { if (e.data === ' ') { e.preventDefault(); fireSpaceHint(); } } catch {} }}
           onInput={(e) => {
             const t = e.currentTarget as HTMLDivElement;
             const v = (t.textContent ?? '').trimStart();
@@ -81,7 +83,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
         inputMode={(readOnly ? 'none' : 'latin') as any}
         name="trainer-input"
         enterKeyHint="done"
-        onKeyDown={(e) => { if (e.key === ' ' || e.code === 'Space' || (e as any).key === 'Spacebar') { e.preventDefault(); } }}
+        onKeyDown={(e) => { if (e.key === ' ' || e.code === 'Space' || (e as any).key === 'Spacebar') { e.preventDefault(); fireSpaceHint(); } }}
         value={value}
         onChange={onChange}
         />
