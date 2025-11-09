@@ -9,6 +9,8 @@ export type Settings = {
   script: 'katakana' | 'hiragana' | 'kanji' | 'radicals'; // active character set
   kanjiByMeaning: boolean; // in kanji mode, answer by meaning
   lang: 'en' | 'ru'; // UI/labels language
+  keyboardlessMode: boolean; // answer with buttons, no keyboard
+  keyboardlessOptions: number; // number of answer choices (2..10)
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -22,6 +24,8 @@ export const DEFAULT_SETTINGS: Settings = {
   script: 'katakana',
   kanjiByMeaning: false,
   lang: 'en',
+  keyboardlessMode: false,
+  keyboardlessOptions: 4,
 };
 
 const KEY = 'katakana.trainer.settings.v1';
@@ -71,6 +75,8 @@ function sanitizeSettings(obj: any): Settings {
   const allowedLangs = new Set(['en','ru']);
   const rawLang = typeof obj?.lang === 'string' ? obj.lang : DEFAULT_SETTINGS.lang;
   const lang = (allowedLangs.has(rawLang) ? rawLang : DEFAULT_SETTINGS.lang) as 'en'|'ru';
-  return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont, script, kanjiByMeaning, lang };
+  const keyboardlessMode = Boolean(obj?.keyboardlessMode ?? DEFAULT_SETTINGS.keyboardlessMode);
+  const keyboardlessOptions = clamp(Number(obj?.keyboardlessOptions ?? DEFAULT_SETTINGS.keyboardlessOptions), 2, 10);
+  return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont, script, kanjiByMeaning, lang, keyboardlessMode, keyboardlessOptions };
 }
 

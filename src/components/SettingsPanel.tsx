@@ -144,7 +144,42 @@ export function SettingsPanel({ open, onClose }: Props) {
             />
             <span className="text-xs text-neutral-400 whitespace-nowrap">{settings.charRem.toFixed(1)} rem</span>
           </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={!!settings.keyboardlessMode}
+              onChange={(e) => update({ keyboardlessMode: e.target.checked })}
+              className="h-3 w-3 rounded border border-neutral-700 bg-neutral-800"
+            />
+            <span className="text-xs text-neutral-300">No keyboard mode</span>
+          </label>
 
+          {settings.keyboardlessMode && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-neutral-300">Options</span>
+              <div className="inline-flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-label="Decrease options"
+                  className="h-5 w-5 rounded-md border border-neutral-700 bg-neutral-800 text-xs hover:bg-neutral-700"
+                  onClick={() => update({ keyboardlessOptions: Math.max(2, settings.keyboardlessOptions - 1) })}
+                >-</button>
+                <input
+                  type="text"
+                  readOnly
+                  inputMode="none"
+                  value={settings.keyboardlessOptions}
+                  className="w-12 text-center rounded-md border border-neutral-700 bg-neutral-800 px-2 py-0 text-xs select-none"
+                />
+                <button
+                  type="button"
+                  aria-label="Increase options"
+                  className="h-5 w-5 rounded-md border border-neutral-700 bg-neutral-800 text-xs hover:bg-neutral-700"
+                  onClick={() => update({ keyboardlessOptions: Math.min(10, settings.keyboardlessOptions + 1) })}
+                >+</button>
+              </div>
+            </div>
+          )}
           
         </div>
 
