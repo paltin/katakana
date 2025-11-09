@@ -16,6 +16,7 @@ const RU_DICT: Record<string, string> = {
   // radicals common
   line: 'линия', dot: 'точка', slash: 'черта', second: 'второй', hook: 'крюк', lid: 'крышка', legs: 'ноги',
   ice: 'лёд', table: 'стол', knife: 'нож', power: 'сила', wrap: 'обёртка', ladle: 'черпак', hide: 'скрыть', divination: 'гадание', lame: 'хромой', corpse: 'труп', sprout: 'росток',
+  cover: 'покрытие', claw: 'коготь', father: 'отец', trigram: 'триграмма', trunk: 'ствол', slice: 'ломтик', stand: 'стоять',
   box: 'коробка', enclosure: 'ограда', private: 'частный', seal: 'печать', cliff: 'утёс', again: 'снова', scholar: 'учёный', roof: 'крыша', inch: 'дюйм',
   go: 'идти', slow: 'медленно', night: 'ночь', work: 'работа', oneself: 'сам', towel: 'полотенце', dry: 'сухой', thread: 'нить', shelter: 'укрытие', stride: 'шаг', join: 'соединить',
   shoot: 'стрелять', bow: 'лук', snout: 'пасть', hair: 'волос', step: 'шаг', heart: 'сердце', spear: 'копьё', door: 'дверь', hand: 'рука', branch: 'ветвь', rap: 'бить', script: 'письмо',
@@ -42,7 +43,7 @@ export function localizedMeaningFromKana(k: any, lang: Lang): string | undefined
     if (direct && direct.trim()) {
       const first = direct.split(/[\/,]/)[0].trim();
       // If direct value already Russian (contains Cyrillic), use it; otherwise fallback to dictionary
-      if (/[А-Яа-яЁё]/.test(first)) return first;
+      if (/[\u0400-\u04FF]/.test(first)) return first;
     }
   }
   const raw = String(k?.meaning ?? '');
@@ -62,7 +63,7 @@ export function addLocalizedSynonymFromKana(synonyms: string[], k: any, lang: La
   let ru: string | undefined;
   if (candidate && candidate.trim()) {
     const first = candidate.split(/[\/,]/)[0].trim();
-    ru = /[А-Яа-яЁё]/.test(first) ? first : undefined;
+    ru = /[\u0400-\u04FF]/.test(first) ? first : undefined;
   }
   if (!ru) ru = localizedMeaning(String(k?.meaning ?? ''), 'ru');
   if (ru && !synonyms.includes(ru)) return [...synonyms, ru];
