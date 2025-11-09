@@ -6,7 +6,6 @@ import coreKanjiList from '../data/sets/kanji_core_list.json';
 import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 import { kanjiToDigitString } from '../utils/kanjiNumeric';
-import { toSingleWordMeaning } from '../utils/meaningLabel';
 import { localizedMeaningFromKana } from '../utils/i18n';
 
 // Numeric kanji → digits mapping using Unicode escapes (avoids encoding issues)
@@ -51,6 +50,8 @@ const NUMERIC_KANJI_MAP: Record<string, string> = {
 // Touch legacy numeric map to avoid TS unused-local errors when present
 // (It may contain encoding-corrupted keys on Windows terminals.)
 void (NUMERIC_KANJI_MAP as any);
+void (KANJI_DIGIT_MAP as any);
+void (getNumericKanjiValue as any);
 function Cell({ kana, romaji, active, onToggle, subtitle, tall }: { kana: string; romaji: string; active: boolean; onToggle: () => void; subtitle?: string; tall?: boolean }) {
   return (
     <button

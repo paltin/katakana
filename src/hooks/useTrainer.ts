@@ -9,7 +9,7 @@ import { FLASH_INTERVAL_MS, WEIGHT_GAMMA, WEIGHT_EPSILON } from '../config';
 // import { pickRandomFill } from '../utils/random';
 import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
 import { withNumericSynonym } from '../utils/kanjiNumeric';
-import { addLocalizedSynonym, addLocalizedSynonymFromKana } from '../utils/i18n';
+import { addLocalizedSynonymFromKana } from '../utils/i18n';
 import { withSingleWordSynonym } from '../utils/meaningLabel';
 import { shuffleInPlace } from '../utils/random';
 import { romajiToCyrillicVariants } from '../utils/cyrillicKana';

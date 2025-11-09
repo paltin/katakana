@@ -13,7 +13,6 @@ import { useSpaceHint } from './hooks/useSpaceHint';
 import { useHighlights } from './hooks/useHighlights';
 import { MistakesManager } from './components/MistakesManager';
 import { kanjiToDigitString } from './utils/kanjiNumeric';
-import { toSingleWordMeaning } from './utils/meaningLabel';
 import { localizedMeaningFromKana } from './utils/i18n';
 import { romajiToCyrillicVariants } from './utils/cyrillicKana';
 import { FabBar } from './components/FabBar';
@@ -69,7 +68,7 @@ function InnerApp() {
             if (!current) return '';
             const isTrans = (settings.script === 'kanji' || settings.script === 'radicals') && (settings as any).kanjiByMeaning;
             if (isTrans) {
-              return kanjiToDigitString((current as any).kana) ?? localizedMeaningFromKana(current as any, settings.lang);
+              return kanjiToDigitString((current as any).kana) ?? localizedMeaningFromKana(current as any, settings.lang) ?? '';
             }
             if ((settings.script === 'hiragana' || settings.script === 'katakana') && (settings as any).lang === 'ru') {
               const v = romajiToCyrillicVariants(current.romaji);
