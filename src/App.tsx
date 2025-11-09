@@ -93,7 +93,7 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
-        <AnswerInput key={currentIndex} value={input} onChange={handleInputChange} fontRem={settings.charRem} autoFocus={false} readOnly={anyOverlayOpen} />
+        <AnswerInput key={currentIndex} value={input} onChange={handleInputChange} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} />
         <FabBar
           onShuffle={reshuffle}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}
