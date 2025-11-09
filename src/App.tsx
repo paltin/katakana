@@ -46,7 +46,8 @@ function InnerApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const anyOverlayOpen = settingsOpen || statsOpen || filterOpen;\n  const { hintActive, disableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
+  const anyOverlayOpen = settingsOpen || statsOpen || filterOpen;
+  const { hintActive, disableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
 
   // Ensure answer input regains focus after overlays close
   const focusAnswer = () => {
