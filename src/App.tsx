@@ -18,6 +18,7 @@ import { romajiToCyrillicVariants } from './utils/cyrillicKana';
 import { FabBar } from './components/FabBar';
 import { IconHint } from './components/icons';
 import { APP_VERSION } from './version';
+import { KeyboardlessOptions } from './components/KeyboardlessOptions';
 
 export default function App() {
   return (
@@ -94,12 +95,13 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
+        {!(settings as any).keyboardlessMode && (
         <AnswerInput
           value={input}
           onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }}
           fontRem={settings.charRem}
-          autoFocus={!anyOverlayOpen}
-          readOnly={anyOverlayOpen}
+          autoFocus={!anyOverlayOpen && !(settings as any).keyboardlessMode}
+          readOnly={anyOverlayOpen || (settings as any).keyboardlessMode}
           resetSeq={currentIndex}
           trailing={(
             <button
@@ -112,6 +114,16 @@ function InnerApp() {
             </button>
           )}
         />
+        )}
+        {(settings as any).keyboardlessMode && (
+          <KeyboardlessOptions
+            current={current}
+            selection={selection}
+            settings={settings as any}
+            disableHint={disableHint}
+            onPick={(val) => handleInputChange({ target: { value: val } } as any)}
+          />
+        )}
         <FabBar
           onShuffle={reshuffle}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}

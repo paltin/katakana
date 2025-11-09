@@ -75,8 +75,11 @@ export function useTrainer(): TrainerReturn {
     // Expected counts proportional to weights
     const expected = rawWeights.map((w) => (sumRaw > 0 ? (n * w) / sumRaw : 0));
     // Ensure enough capacity when pool is smaller than N: allow fair duplicates
-    const baseCap = pool.length > 0 ? Math.max(1, Math.min(maxDup, Math.ceil(n / pool.length))) : 1;
-    const caps = scores.map((s) => (s > 0 ? maxDup : baseCap));
+    // Ensure we always have capacity to fill N slots
+    const neededPerItem = pool.length > 0 ? Math.ceil(n / pool.length) : 1;
+    const effMaxDup = Math.max(maxDup, neededPerItem);
+    const baseCap = pool.length > 0 ? Math.max(1, neededPerItem) : 1;
+    const caps = scores.map((s) => (s > 0 ? effMaxDup : baseCap));
 
     // Start with floors under caps
     const counts = expected.map((e, i) => Math.min(caps[i], Math.floor(e)));
@@ -97,7 +100,11 @@ export function useTrainer(): TrainerReturn {
         .map((c, i) => ({ i, room: caps[i] - c, r: expected[i] - Math.floor(expected[i]) }))
         .filter((x) => x.room > 0)
         .sort((a, b) => b.r - a.r);
-      if (candidates.length === 0) break;
+      if (candidates.length === 0) {
+        // As a last resort, ignore caps and fill round-robin to reach N
+        for (let i = 0; i < counts.length && used < n; i++) { counts[i]++; used++; }
+        break;
+      }
       counts[candidates[0].i]++; used++;
     }
 
