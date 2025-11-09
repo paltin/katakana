@@ -40,14 +40,13 @@ function InnerApp() {
     finished,
   } = useTrainer();
   const { settings } = useSettings();
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  const { hintActive, disableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
+    
   const { highlighted, onToggleHighlight } = useHighlights();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const anyOverlayOpen = settingsOpen || statsOpen || filterOpen;
+  const anyOverlayOpen = settingsOpen || statsOpen || filterOpen;\n  const { hintActive, disableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
 
   // Ensure answer input regains focus after overlays close
   const focusAnswer = () => {
@@ -118,7 +117,7 @@ function InnerApp() {
           finished={finished}
           problems={problemCounts}
           reshuffle={reshuffle}
-          onOpenChange={(open) => { setOverlayOpen(open); if (!open) focusAnswer(); }}
+          onOpenChange={(open) => { if (!open) focusAnswer(); }}
         />
         <Suspense fallback={null}>
           <FilterPanel open={filterOpen} onClose={() => { setFilterOpen(false); focusAnswer(); }} />

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 
 // Space once => show hint; typing/overlays => hide
-enum Key { Space = 'Space', Legacy1 = ' ', Legacy2 = 'Spacebar' }
+const SPACE_KEYS = new Set(['Space',' ','Spacebar'])
 export function useSpaceHint(disabled = false, onHintUsed?: () => void) {
   const [hintActive, setHintActive] = useState(false);
   useEffect(() => { if (disabled) setHintActive(false); }, [disabled]);
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (disabled) return;
-      if (e.code === Key.Space || e.key === Key.Legacy1 || e.key === Key.Legacy2) {
+      if (SPACE_KEYS.has(e.code as any) || SPACE_KEYS.has(e.key as any)) {
         e.preventDefault(); (e as any).stopImmediatePropagation?.();
         setHintActive(true); onHintUsed?.();
       }
