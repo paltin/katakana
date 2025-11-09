@@ -17,6 +17,7 @@ const RU_DICT: Record<string, string> = {
   line: 'линия', dot: 'точка', slash: 'черта', second: 'второй', hook: 'крюк', lid: 'крышка', legs: 'ноги',
   ice: 'лёд', table: 'стол', knife: 'нож', power: 'сила', wrap: 'обёртка', ladle: 'черпак', hide: 'скрыть', divination: 'гадание', lame: 'хромой', corpse: 'труп', sprout: 'росток',
   cover: 'покрытие', claw: 'коготь', father: 'отец', trigram: 'триграмма', trunk: 'ствол', slice: 'ломтик', stand: 'стоять',
+  profound: 'глубокий', steps: 'шаги', badger: 'барсук',
   box: 'коробка', enclosure: 'ограда', private: 'частный', seal: 'печать', cliff: 'утёс', again: 'снова', scholar: 'учёный', roof: 'крыша', inch: 'дюйм',
   go: 'идти', slow: 'медленно', night: 'ночь', work: 'работа', oneself: 'сам', towel: 'полотенце', dry: 'сухой', thread: 'нить', shelter: 'укрытие', stride: 'шаг', join: 'соединить',
   shoot: 'стрелять', bow: 'лук', snout: 'пасть', hair: 'волос', step: 'шаг', heart: 'сердце', spear: 'копьё', door: 'дверь', hand: 'рука', branch: 'ветвь', rap: 'бить', script: 'письмо',
