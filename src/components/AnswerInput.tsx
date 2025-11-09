@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type Props = {
   value: string;
@@ -24,9 +24,39 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
     paddingLeft: `${base.padRem * scale}rem`,
     paddingRight: `${base.padRem * scale}rem`,
   };
+  const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+  const ceRef = useRef<HTMLDivElement>(null);
+  // Keep contentEditable in sync when we render it
+  useEffect(() => {
+    if (!isAndroid || readOnly) return;
+    const el = ceRef.current; if (!el) return;
+    if (el.textContent !== value) el.textContent = value;
+  }, [value, isAndroid, readOnly]);
   return (
     <div className="mt-4 flex justify-center">
-      <input
+      {isAndroid && !readOnly ? (
+        <div
+          ref={ceRef}
+          role="textbox"
+          aria-label="Answer"
+          contentEditable
+          suppressContentEditableWarning
+          className="rounded-md border border-neutral-800 bg-neutral-900 leading-tight text-neutral-400 [font-family:Tahoma] focus:outline-none focus:ring-2 focus:ring-neutral-700 outline-none"
+          style={style}
+          autoCorrect="off"
+          spellCheck={false}
+          autoCapitalize="none"
+          // @ts-expect-error - not in TS DOM yet in all libs
+          inputMode={'latin'}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); } }}
+          onInput={(e) => {
+            const t = e.currentTarget as HTMLDivElement;
+            const v = (t.textContent ?? '').trimStart();
+            onChange({ target: { value: v } } as any);
+          }}
+        />
+      ) : (
+        <input
         type="text"
         aria-label="Answer"
         className="rounded-md border border-neutral-800 bg-neutral-900 leading-tight text-neutral-400 [font-family:Tahoma] focus:outline-none focus:ring-2 focus:ring-neutral-700"
@@ -43,7 +73,8 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
         enterKeyHint="done"
         value={value}
         onChange={onChange}
-      />
+        />
+      )}
     </div>
   );
 }
