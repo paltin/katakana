@@ -6,6 +6,7 @@ import coreKanjiList from './sets/kanji_core_list.json';
 import extraKanjiList from './sets/kanji_extra_list.json';
 import radicalsRaw from './sets/radicals.json';
 import extraKanjiData from './sets/kanji_extra_data.json';
+import { localizedMeaningFromKana } from '../utils/i18n';
 
 export type ScriptId = 'katakana' | 'hiragana' | 'kanji' | 'radicals';
 
@@ -40,6 +41,8 @@ export function getCharacters(script: ScriptId): Kana[] {
           kana: String(r.radical),
           romaji: String(r.pinyin),
           meaning: String(r.meaning),
+          // auto-fill Russian if not present in dataset
+          meaningRu: (r as any).meaningRu ?? undefined,
         })) as Kana[];
         set = arr;
       }
@@ -47,6 +50,16 @@ export function getCharacters(script: ScriptId): Kana[] {
     default:
       set = KATAKANA;
   }
+  // Auto-enrich with Russian meaning if missing (computed from EN)
+  set = (set || []).map((k) => {
+    const ru = (k as any).meaningRu ?? (k as any).meaning_ru;
+    if (!ru && (k as any).meaning) {
+      const computed = localizedMeaningFromKana(k as any, 'ru');
+      return { ...(k as any), meaningRu: computed } as Kana;
+    }
+    return k;
+  });
+
   // Fallback: if selected set is empty, use katakana to keep app usable
   return (set && set.length > 0) ? set : KATAKANA;
 }
