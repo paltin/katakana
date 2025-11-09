@@ -5,10 +5,9 @@ type Props = {
   onOpenStats: () => void;
   onOpenSettings: () => void;
   onOpenFilter: () => void;
-  onOpenHint?: () => void;
 };
 
-export function FabBar({ onShuffle, onOpenStats, onOpenSettings, onOpenFilter, onOpenHint }: Props) {
+export function FabBar({ onShuffle, onOpenStats, onOpenSettings, onOpenFilter }: Props) {
   const base =
     "inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800";
 
