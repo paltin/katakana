@@ -26,12 +26,21 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
   };
   const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
   const ceRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   // Keep contentEditable in sync when we render it
   useEffect(() => {
     if (!isAndroid || readOnly) return;
     const el = ceRef.current; if (!el) return;
     if (el.textContent !== value) el.textContent = value;
   }, [value, isAndroid, readOnly]);
+  // Refocus after advance when autoFocus is true (to keep keyboard open)
+  useEffect(() => {
+    if (!autoFocus || readOnly) return;
+    const t = setTimeout(() => {
+      if (isAndroid) ceRef.current?.focus(); else inputRef.current?.focus();
+    }, 0);
+    return () => clearTimeout(t);
+  }, [autoFocus, readOnly, isAndroid]);
   return (
     <div className="mt-4 flex justify-center">
       {isAndroid && !readOnly ? (
@@ -57,6 +66,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
         />
       ) : (
         <input
+        ref={inputRef}
         type="text"
         aria-label="Answer"
         className="rounded-md border border-neutral-800 bg-neutral-900 leading-tight text-neutral-400 [font-family:Tahoma] focus:outline-none focus:ring-2 focus:ring-neutral-700"
