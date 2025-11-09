@@ -9,6 +9,7 @@ import { FLASH_INTERVAL_MS, WEIGHT_GAMMA, WEIGHT_EPSILON } from '../config';
 // import { pickRandomFill } from '../utils/random';
 import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
 import { withNumericSynonym } from '../utils/kanjiNumeric';
+import { addLocalizedSynonym } from '../utils/i18n';
 import { withSingleWordSynonym } from '../utils/meaningLabel';
 import { shuffleInPlace } from '../utils/random';
 
@@ -180,6 +181,8 @@ export function useTrainer(): TrainerReturn {
       synonyms = withNumericSynonym(synonyms, (current as any).kana);
       // Add single-word synonym to avoid needing spaces
       synonyms = withSingleWordSynonym(synonyms, raw);
+      // Add localized synonym (e.g., Russian) if language selected
+      synonyms = addLocalizedSynonym(synonyms, raw, (settings as any).lang ?? 'en');
       const typed = val.trim().toLowerCase();
       // Accept as soon as an exact synonym is typed
       if (synonyms.includes(typed)) {

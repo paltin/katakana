@@ -8,6 +8,7 @@ export type Settings = {
   kanaFont: string; // CSS font-family for kana glyphs
   script: 'katakana' | 'hiragana' | 'kanji' | 'radicals'; // active character set
   kanjiByMeaning: boolean; // in kanji mode, answer by meaning
+  lang: 'en' | 'ru'; // UI/labels language
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -20,6 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
   kanaFont: 'Noto Serif JP',
   script: 'katakana',
   kanjiByMeaning: false,
+  lang: 'en',
 };
 
 const KEY = 'katakana.trainer.settings.v1';
@@ -66,6 +68,9 @@ function sanitizeSettings(obj: any): Settings {
   const rawScript = typeof obj?.script === 'string' ? obj.script : DEFAULT_SETTINGS.script;
   const script = (allowedScripts.has(rawScript) ? rawScript : DEFAULT_SETTINGS.script) as Settings['script'];
   const kanjiByMeaning = Boolean(obj?.kanjiByMeaning ?? DEFAULT_SETTINGS.kanjiByMeaning);
-  return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont, script, kanjiByMeaning };
+  const allowedLangs = new Set(['en','ru']);
+  const rawLang = typeof obj?.lang === 'string' ? obj.lang : DEFAULT_SETTINGS.lang;
+  const lang = (allowedLangs.has(rawLang) ? rawLang : DEFAULT_SETTINGS.lang) as 'en'|'ru';
+  return { rows, cols, charRem, hintThreshold, study, kanaColor, kanaFont, script, kanjiByMeaning, lang };
 }
 

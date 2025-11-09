@@ -14,6 +14,7 @@ import { useHighlights } from './hooks/useHighlights';
 import { MistakesManager } from './components/MistakesManager';
 import { kanjiToDigitString } from './utils/kanjiNumeric';
 import { toSingleWordMeaning } from './utils/meaningLabel';
+import { localizedMeaning } from './utils/i18n';
 import { FabBar } from './components/FabBar';
 
 export default function App() {
@@ -64,7 +65,7 @@ function InnerApp() {
           fontRem={settings.charRem}
           currentCol={currentIndex % settings.cols}
           text={current ? (((settings.script === 'kanji' || settings.script === 'radicals') && (settings as any).kanjiByMeaning)
-            ? (kanjiToDigitString((current as any).kana) ?? toSingleWordMeaning(String((current as any).meaning ?? '')))
+            ? (kanjiToDigitString((current as any).kana) ?? localizedMeaning(String((current as any).meaning ?? ''), settings.lang))
             : current.romaji) : ''}
           show={!!(hintHeld && current)}
         />

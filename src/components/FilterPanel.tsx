@@ -7,6 +7,7 @@ import extraKanjiList from '../data/sets/kanji_extra_list.json';
 import { useSettings } from '../context/SettingsContext';
 import { kanjiToDigitString } from '../utils/kanjiNumeric';
 import { toSingleWordMeaning } from '../utils/meaningLabel';
+import { localizedMeaning } from '../utils/i18n';
 
 // Numeric kanji → digits mapping using Unicode escapes (avoids encoding issues)
 const KANJI_DIGIT_MAP: Record<string, string> = {
@@ -199,7 +200,7 @@ export function FilterPanel({ open, onClose }: { open: boolean; onClose: () => v
                       if (numeric) { subtitle = numeric; }
                       else {
                         const meaning = (k as any).meaning as string | undefined;
-                        const label = meaning ? toSingleWordMeaning(meaning) : undefined;
+                        const label = meaning ? localizedMeaning(meaning, settings.lang) : undefined;
                         subtitle = label && label.length > 0 ? label : k.romaji;
                       }
                     } else {

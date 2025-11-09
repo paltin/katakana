@@ -1,0 +1,43 @@
+import { toSingleWordMeaning } from './meaningLabel';
+
+export type Lang = 'en' | 'ru';
+
+// Minimal EN->RU dictionary for common meanings used in kanji/radicals.
+const RU_DICT: Record<string, string> = {
+  // basics
+  one: 'один', two: 'два', three: 'три', four: 'четыре', five: 'пять', six: 'шесть', seven: 'семь', eight: 'восемь', nine: 'девять', ten: 'десять',
+  hundred: 'сто', thousand: 'тысяча', 'ten thousand': 'десять тысяч',
+  person: 'человек', man: 'мужчина', woman: 'женщина', child: 'ребёнок', name: 'имя', I: 'я', me: 'я',
+  day: 'день', sun: 'солнце', moon: 'луна', year: 'год', time: 'время', hour: 'час', minute: 'минута', now: 'сейчас', before: 'перед', front: 'перед', after: 'после', back: 'назад',
+  mountain: 'гора', river: 'река', tree: 'дерево', forest: 'лес', sky: 'небо', sea: 'море', rain: 'дождь',
+  fire: 'огонь', water: 'вода', earth: 'земля', gold: 'золото', money: 'деньги',
+  left: 'лево', right: 'право', up: 'верх', down: 'низ', middle: 'середина', enter: 'вход', exit: 'выход', mouth: 'рот', hand: 'рука', foot: 'нога',
+  big: 'большой', small: 'малый', half: 'половина', every: 'каждый', what: 'что', previous: 'прежний', next: 'следующий',
+  // radicals common
+  line: 'линия', dot: 'точка', slash: 'черта', second: 'второй', hook: 'крюк', lid: 'крышка', legs: 'ноги',
+  box: 'коробка', enclosure: 'ограда', private: 'частный', seal: 'печать', cliff: 'утёс', again: 'снова', scholar: 'учёный', roof: 'крыша', inch: 'дюйм',
+  go: 'идти', slow: 'медленно', night: 'ночь', work: 'работа', oneself: 'сам', towel: 'полотенце', dry: 'сухой', thread: 'нить', shelter: 'укрытие', stride: 'шаг', join: 'соединить',
+  shoot: 'стрелять', bow: 'лук', snout: 'пасть', hair: 'волос', step: 'шаг', heart: 'сердце', spear: 'копьё', door: 'дверь', hand: 'рука', branch: 'ветвь', rap: 'бить', script: 'письмо',
+  dipper: 'ковш', axe: 'топор', square: 'квадрат', not: 'не', say: 'сказать', lack: 'недостаток', stop: 'остановка', death: 'смерть', weapon: 'оружие', mother: 'мать', compare: 'сравнить',
+  fur: 'шерсть', clan: 'клан', steam: 'пар', cow: 'корова', dog: 'собака', jade: 'нефрит', melon: 'дыня', tile: 'черепица', sweet: 'сладкий', life: 'жизнь', use: 'использовать', field: 'поле',
+  cloth: 'ткань', ill: 'болезнь', white: 'белый', skin: 'кожа', dish: 'блюдо', eye: 'глаз', arrow: 'стрела', stone: 'камень', spirit: 'дух', track: 'след', grain: 'зерно', cave: 'пещера',
+  bamboo: 'бамбук', rice: 'рис', silk: 'шёлк', jar: 'кувшин', net: 'сеть', sheep: 'овца', feather: 'перо', old: 'старый', and: 'и', plow: 'плуг', ear: 'ухо', brush: 'кисть', meat: 'мясо',
+  minister: 'министр', oneself2: 'сам', arrive: 'прибыть', mortar: 'ступка', tongue: 'язык', contrary: 'противоположный', boat: 'лодка', color: 'цвет', grass: 'трава', tiger: 'тигр', insect: 'насекомое',
+  blood: 'кровь', walk: 'идти', clothes: 'одежда', west: 'запад', horn: 'рог', speech: 'речь', valley: 'долина', bean: 'боб', pig: 'свинья', shell: 'раковина', red: 'красный', foot: 'нога', body: 'тело', cart: 'повозка', bitter: 'горький', morning: 'утро', city: 'город', wine: 'вино', distinguish: 'различать', village: 'деревня', metal: 'металл', long: 'длинный', gate: 'ворота', mound: 'курган', slave: 'раб', bird: 'птица', rain: 'дождь', blue: 'синий', wrong: 'неправильно', face: 'лицо', leather: 'кожа', leek: 'лук-порей', sound: 'звук', page: 'страница', wind: 'ветер', fly: 'летать', eat: 'есть', head: 'голова', fragrant: 'ароматный', horse: 'лошадь', bone: 'кость', high: 'высокий', hair2: 'волос', fight: 'драться', wine2: 'вино', cauldron: 'котёл', ghost: 'призрак', fish: 'рыба', salty: 'солёный', deer: 'олень', wheat: 'пшеница', hemp: 'конопля', yellow: 'жёлтый', millet: 'просо', black: 'чёрный', embroidery: 'вышивка', frog: 'лягушка', tripod: 'треножник', drum: 'барабан', rat: 'крыса', nose: 'нос', even: 'ровный', tooth: 'зуб', dragon: 'дракон', turtle: 'черепаха', flute: 'флейта'
+};
+
+export function localizedMeaning(raw: string, lang: Lang): string {
+  const en = toSingleWordMeaning(raw);
+  if (lang === 'ru') {
+    return RU_DICT[en] ?? en; // fallback to English word if missing
+  }
+  return en;
+}
+
+export function addLocalizedSynonym(synonyms: string[], raw: string, lang: Lang): string[] {
+  if (lang !== 'ru') return synonyms;
+  const ru = localizedMeaning(raw, 'ru');
+  if (ru && !synonyms.includes(ru)) return [...synonyms, ru];
+  return synonyms;
+}
+
