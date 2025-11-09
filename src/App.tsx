@@ -16,6 +16,7 @@ import { kanjiToDigitString } from './utils/kanjiNumeric';
 import { localizedMeaningFromKana } from './utils/i18n';
 import { romajiToCyrillicVariants } from './utils/cyrillicKana';
 import { FabBar } from './components/FabBar';
+import { IconHint } from './components/icons';
 import { APP_VERSION } from './version';
 
 export default function App() {
@@ -93,10 +94,26 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
-        <AnswerInput value={input} onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} resetSeq={currentIndex} />
+        <AnswerInput
+          value={input}
+          onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }}
+          fontRem={settings.charRem}
+          autoFocus={!anyOverlayOpen}
+          readOnly={anyOverlayOpen}
+          resetSeq={currentIndex}
+          trailing={(
+            <button
+              type="button"
+              aria-label="Hint"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-neutral-800 bg-neutral-900 text-xl shadow hover:bg-neutral-800"
+              onClick={() => { try { (document.querySelector('input[aria-label="Answer"]') as HTMLInputElement)?.focus(); } catch {}; try { window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); } catch {} }}
+            >
+              <IconHint />
+            </button>
+          )}
+        />
         <FabBar
           onShuffle={reshuffle}
-          onOpenHint={() => { enableHint(); try { (document.querySelector("input[aria-label=\"Answer\"]") as HTMLInputElement)?.focus(); } catch {} }}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}
           onOpenSettings={() => { blurActive(); setSettingsOpen(true); }}
           onOpenFilter={() => { blurActive(); setFilterOpen(true); }}

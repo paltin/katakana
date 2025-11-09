@@ -1,4 +1,4 @@
-import { IconBarChart, IconFunnel, IconGear, IconShuffle, IconHint } from './icons';
+import { IconBarChart, IconFunnel, IconGear, IconShuffle } from './icons';
 
 type Props = {
   onShuffle: () => void;
@@ -14,17 +14,7 @@ export function FabBar({ onShuffle, onOpenStats, onOpenSettings, onOpenFilter, o
 
   return (
     <>
-      {onOpenHint && (
-        <button
-          aria-label="Hint"
-          className={`fixed bottom-4 right-72 md:hidden ${base}`}
-          onClick={onOpenHint}
-          title="Hint"
-          type="button"
-        >
-          <IconHint />
-        </button>
-      )}
+      {/* Hint button removed from FAB on mobile; now shown next to input */}
 
       <button
         aria-label="Statistics"

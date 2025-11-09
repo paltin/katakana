@@ -7,8 +7,9 @@ type Props = {
   autoFocus?: boolean;
   readOnly?: boolean;
   resetSeq?: number;
+  trailing?: React.ReactNode;
 };
-export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, resetSeq }: Props) {
+export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, resetSeq, trailing }: Props) {
   const MAX_CHAR_REM = 3.8;
   const scale = Math.min(fontRem, MAX_CHAR_REM) / MAX_CHAR_REM;
   const base = {
@@ -68,7 +69,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, res
     } catch {}
   }, [resetSeq, isAndroid, readOnly, value]);
   return (
-    <div className="mt-4 flex justify-center">
+    <div className="mt-4 flex justify-center items-center gap-2">
       {isAndroid && !readOnly ? (
         <div
           ref={ceRef}
@@ -113,6 +114,7 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly, res
         onChange={onChange}
         />
       )}
+      {trailing}
     </div>
   );
 }
