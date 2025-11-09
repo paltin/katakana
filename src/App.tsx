@@ -47,7 +47,7 @@ function InnerApp() {
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const anyOverlayOpen = settingsOpen || statsOpen || filterOpen;
-  const { hintActive, disableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
+  const { hintActive, disableHint, enableHint } = useSpaceHint(anyOverlayOpen, () => markHintUsed());
 
   // Ensure answer input regains focus after overlays close
   const focusAnswer = () => {
@@ -96,6 +96,7 @@ function InnerApp() {
         <AnswerInput value={input} onChange={(e) => { if(e.target.value && e.target.value.length>0) disableHint(); handleInputChange(e); }} fontRem={settings.charRem} autoFocus={!anyOverlayOpen} readOnly={anyOverlayOpen} resetSeq={currentIndex} />
         <FabBar
           onShuffle={reshuffle}
+          onOpenHint={() => { enableHint(); try { (document.querySelector("input[aria-label=\"Answer\"]") as HTMLInputElement)?.focus(); } catch {} }}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}
           onOpenSettings={() => { blurActive(); setSettingsOpen(true); }}
           onOpenFilter={() => { blurActive(); setFilterOpen(true); }}

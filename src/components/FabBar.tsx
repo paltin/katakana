@@ -1,18 +1,31 @@
+import { IconBarChart, IconFunnel, IconGear, IconShuffle, IconHint } from './icons';
+
 type Props = {
   onShuffle: () => void;
   onOpenStats: () => void;
   onOpenSettings: () => void;
   onOpenFilter: () => void;
+  onOpenHint?: () => void;
 };
 
-import { IconBarChart, IconFunnel, IconGear, IconShuffle } from './icons';
-
-export function FabBar({ onShuffle, onOpenStats, onOpenSettings, onOpenFilter }: Props) {
+export function FabBar({ onShuffle, onOpenStats, onOpenSettings, onOpenFilter, onOpenHint }: Props) {
   const base =
     "inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-xl shadow transition hover:bg-neutral-800";
 
   return (
     <>
+      {onOpenHint && (
+        <button
+          aria-label="Hint"
+          className={`fixed bottom-4 right-72 md:hidden ${base}`}
+          onClick={onOpenHint}
+          title="Hint"
+          type="button"
+        >
+          <IconHint />
+        </button>
+      )}
+
       <button
         aria-label="Statistics"
         className={`fixed bottom-4 right-52 ${base}`}

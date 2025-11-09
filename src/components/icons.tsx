@@ -58,3 +58,12 @@ export function IconX({ size, ...rest }: IconProps) {
     </svg>
   );
 }
+
+export function IconHint({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size)} {...rest}>
+      <path d="M12 3a7 7 0 0 1 7 7c0 3.1-2 5-4 6.2-.6.4-1 .9-1 1.6V19h-4v-1.2c0-.7-.4-1.2-1-1.6-2-1.2-4-3.1-4-6.2a7 7 0 0 1 7-7z" />
+      <path d="M10 21h4" />
+    </svg>
+  );
+}
