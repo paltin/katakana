@@ -32,7 +32,17 @@ export function AnswerInput({ value, onChange, fontRem, autoFocus, readOnly }: P
   useEffect(() => {
     if (!isAndroid || readOnly) return;
     const el = ceRef.current; if (!el) return;
-    if (el.textContent !== value) el.textContent = value;
+    if (el.textContent !== value) {
+      el.textContent = value;
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection?.();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      } catch {}
+    }
   }, [value, isAndroid, readOnly]);
   // Refocus after advance when autoFocus is true (to keep keyboard open)
   useEffect(() => {
