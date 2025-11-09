@@ -24,6 +24,7 @@ const RU_DICT: Record<string, string> = {
   tall: 'высокий', cheap: 'дешёвый', new: 'новый', tea: 'чай', alcohol: 'алкоголь', drink: 'пить', buy: 'покупать', sell: 'продавать', thing: 'вещь',
   station: 'станция', prohibit: 'запрещать', danger: 'опасность',
   i: 'я', me: 'я', book: 'книга',
+  yen: 'йена', circle: 'круг',
   come: 'прийти', make: 'делать', nature: 'природа', need: 'нужно', strong: 'сильный', hold: 'держать', field: 'поле', cooperate: 'сотрудничать', take: 'брать',
   metropolis: 'столица', capital: 'столица', peace: 'мир', by: 'через', machine: 'машина', flat: 'плоский', near: 'близко', god: 'бог', port: 'порт', weekday: 'будний', line: 'линия',
   close: 'закрыть', push: 'толкать', pull: 'тянуть', stop: 'остановка', building: 'здание', england: 'Англия', place: 'место', number: 'число', floor: 'этаж', mail: 'почта', bureau: 'бюро', silver: 'серебро', ride: 'ехать', garden: 'сад', diagram: 'схема', warm: 'тёплый',
