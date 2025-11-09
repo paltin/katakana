@@ -47,6 +47,8 @@ function InnerApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const anyOverlayOpen = settingsOpen || statsOpen || filterOpen;
+
   // Ensure answer input regains focus after overlays close
   const focusAnswer = () => {
     try { document.querySelector<HTMLInputElement>('input[aria-label="Answer"]')?.focus(); } catch {}
@@ -54,11 +56,10 @@ function InnerApp() {
   const blurActive = () => {
     try { (document.activeElement as HTMLElement | null)?.blur?.(); } catch {}
   };
-  // Scale top padding with character size so the space from the top “ceiling”
-  // shrinks proportionally as characters get smaller. At max size (3.8rem),
-  // keep the current distance (1.375rem).
+
+  // Scale top padding with character size so the top spacing scales with font size
   const MAX_CHAR_REM = 3.8;
-  const BASE_TOP_PAD_REM = 1.375; // previous fixed pt value
+  const BASE_TOP_PAD_REM = 1.375; // previous fixed pt value converted to rem
   const topPadRem = BASE_TOP_PAD_REM * (Math.min(settings.charRem, MAX_CHAR_REM) / MAX_CHAR_REM);
 
   return (
@@ -92,7 +93,7 @@ function InnerApp() {
           fontFamily={settings.kanaFont}
           highlightRomajiColors={highlighted}
         />
-        <AnswerInput value={input} onChange={handleInputChange} fontRem={settings.charRem} autoFocus={false} />
+        <AnswerInput value={input} onChange={handleInputChange} fontRem={settings.charRem} autoFocus={false} readOnly={anyOverlayOpen} />
         <FabBar
           onShuffle={reshuffle}
           onOpenStats={() => { blurActive(); setStatsOpen(true); }}
@@ -127,4 +128,3 @@ function InnerApp() {
     </div>
   );
 }
- 
