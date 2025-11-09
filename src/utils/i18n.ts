@@ -34,6 +34,16 @@ export function localizedMeaning(raw: string, lang: Lang): string {
   return en;
 }
 
+// Prefer dataset-provided localized meaning if present on the Kana record.
+export function localizedMeaningFromKana(k: any, lang: Lang): string | undefined {
+  if (lang === 'ru') {
+    const direct = (k?.meaningRu ?? k?.meaning_ru ?? k?.ru) as string | undefined;
+    if (direct && direct.trim()) return direct.split(/[\/,]/)[0].trim();
+  }
+  const raw = String(k?.meaning ?? '');
+  return localizedMeaning(raw, lang);
+}
+
 export function addLocalizedSynonym(synonyms: string[], raw: string, lang: Lang): string[] {
   if (lang !== 'ru') return synonyms;
   const ru = localizedMeaning(raw, 'ru');
@@ -41,3 +51,10 @@ export function addLocalizedSynonym(synonyms: string[], raw: string, lang: Lang)
   return synonyms;
 }
 
+export function addLocalizedSynonymFromKana(synonyms: string[], k: any, lang: Lang): string[] {
+  if (lang !== 'ru') return synonyms;
+  const candidate = (k?.meaningRu ?? k?.meaning_ru ?? k?.ru) as string | undefined;
+  const ru = (candidate && candidate.trim()) ? candidate.split(/[\/,]/)[0].trim() : localizedMeaning(String(k?.meaning ?? ''), 'ru');
+  if (ru && !synonyms.includes(ru)) return [...synonyms, ru];
+  return synonyms;
+}
