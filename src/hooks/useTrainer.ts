@@ -9,8 +9,10 @@ import { FLASH_INTERVAL_MS, WEIGHT_GAMMA, WEIGHT_EPSILON } from '../config';
 // import { pickRandomFill } from '../utils/random';
 import { bumpHint, bumpMistake, decayAll, getScore, smoothCorrect, getMaxDuplicates } from '../stats/store';
 import { withNumericSynonym } from '../utils/kanjiNumeric';
+import { addLocalizedSynonym, addLocalizedSynonymFromKana } from '../utils/i18n';
 import { withSingleWordSynonym } from '../utils/meaningLabel';
 import { shuffleInPlace } from '../utils/random';
+import { romajiToCyrillicVariants } from '../utils/cyrillicKana';
 
 /**
  * Public API returned by useTrainer.
@@ -180,6 +182,9 @@ export function useTrainer(): TrainerReturn {
       synonyms = withNumericSynonym(synonyms, (current as any).kana);
       // Add single-word synonym to avoid needing spaces
       synonyms = withSingleWordSynonym(synonyms, raw);
+      // Add localized synonym (e.g., Russian) if language selected. Prefer dataset value.
+      const lang = (settings as any).lang ?? 'en';
+      synonyms = addLocalizedSynonymFromKana(synonyms, current as any, lang);
       const typed = val.trim().toLowerCase();
       // Accept as soon as an exact synonym is typed
       if (synonyms.includes(typed)) {
@@ -202,10 +207,33 @@ export function useTrainer(): TrainerReturn {
       }
       return;
     }
-    // Regular romaji mode
+    // Regular romaji mode (with optional Cyrillic input support)
     const need = requiredLength(current.romaji);
+    const expected = current.romaji.slice(0, need).toLowerCase();
+    const isCyr = /[\u0400-\u04FF]/.test(val);
+    if (isCyr) {
+      const variants = romajiToCyrillicVariants(expected);
+      const ok = variants.includes(val.toLowerCase());
+      const needCyr = Math.max(...variants.map(v => v.length));
+      if (ok) {
+        if (!hadMistake && !usedHint && current) {
+          smoothCorrect(current.romaji);
+        }
+        advance();
+      } else if (val.length >= needCyr) {
+        setInput('');
+        setAttempts((prev) => prev + 1);
+        setProblemCounts((prev) => ({
+          ...prev,
+          [current.romaji]: (prev[current.romaji] ?? 0) + 1,
+        }));
+        setHadMistake(true);
+        bumpMistake(current.romaji);
+        flashErrorTwice();
+      }
+      return;
+    }
     if (val.length >= need) {
-      const expected = current.romaji.slice(0, need).toLowerCase();
       if (val.slice(0, need).toLowerCase() === expected) {
         if (!hadMistake && !usedHint && current) {
           smoothCorrect(current.romaji);

@@ -60,6 +60,17 @@ export function SettingsPanel({ open, onClose }: Props) {
               </select>
             </label>
             <label className="flex items-center gap-2">
+              <span className="text-xs text-neutral-300">Language</span>
+              <select
+                value={settings.lang}
+                onChange={(e) => update({ lang: e.target.value as any })}
+                className="w-28 rounded-md border border-neutral-700 bg-neutral-800 px-2 py-0 text-xs"
+              >
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2">
               <span className="text-xs text-neutral-300">Font</span>
               <select
                 value={settings.kanaFont}
