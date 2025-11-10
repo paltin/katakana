@@ -57,7 +57,7 @@ export function KeyboardlessOptions({ current, selection, settings, onPick, disa
           onClick={() => { disableHint(); onPick(opt); }}
           title={opt}
         >
-          <span className="text-neutral-300 !text-neutral-300 [color:#d4d4d4] [WebkitTextFillColor:#d4d4d4]">{opt}</span>
+          <span className="answer-option">{opt}</span>
         </button>
       ))}
     </div>
