@@ -7,6 +7,3 @@ body {
   /* Prefer serif for Japanese, with sans fallback */
   font-family: 'Noto Serif JP', 'Noto Sans JP', ui-serif, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
-
-/* Force gray text for keyboardless answer labels */
-.answer-option { color: #d4d4d4 !important; -webkit-text-fill-color: #d4d4d4 !important; }
