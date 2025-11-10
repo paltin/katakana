@@ -53,7 +53,6 @@ export function KeyboardlessOptions({ current, selection, settings, onPick, disa
           key={i}
           type="button"
           className="h-10 w-12 rounded-md border border-neutral-800 bg-neutral-900 text-neutral-300 text-xl hover:bg-neutral-800 flex items-center justify-center truncate [font-family:Tahoma]"
-          style={{ color: '#d4d4d4' }}
           onClick={() => { disableHint(); onPick(opt); }}
           title={opt}
         >
